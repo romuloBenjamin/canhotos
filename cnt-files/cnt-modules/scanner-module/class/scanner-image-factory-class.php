@@ -79,17 +79,27 @@ class Scanner_image_factory
             case 'init-identify-nfe':
                 $factory->build = $this->build;
                 $factory->image = $this->image;
-                echo json_encode($factory->build);
+                //echo json_encode($factory->build);
                 /*IDENTIFY ZBAR | TESSERACT | TESSERACT-FAILS*/
+                echo json_encode($factory->build["identify"]);
                 if ($factory->build["identify"]["origin"] == "ZBAR") {
                     $barCode = $this->build["identify"]["raw"];
-                    sleep(1);
                     $zbar_builds = $factory->images_factory_identify($barCode);
                 }
                 if ($factory->build["identify"]["origin"] == "TESSERACT") {
-                    $factory->swit = "tesseract-ident-steps";
-                    echo json_encode($this);
-                    //$tessa = $factory->images_factory();
+                    $get_factory->build = $factory->build;
+                    $get_factory->image = $factory->image;
+                    $tessa_reads = $get_factory->factory_read_sample();
+                    if (intval($tessa_reads["status"]) == 0) {
+                        $get_factory->factory_rotate(180, "path_process", "path_process");
+                        $get_factory->factory_rotate(180, "path_process", "path_process", "local");
+                        //$get_factory->build["crop_index"] = 5;
+                        //$tessa_reads = $get_factory->factory_identify_sample_init(true);
+                        //echo json_encode($tessa_reads);
+                    }
+                    //$factory->swit = "tesseract-ident-steps";
+                    //$tessa_build = $factory->images_factory();
+                    //echo json_encode($tessa_build);
                     //$factory->build = $tessa;
                 }
                 //$factory->build["crop_index"] = 3;
@@ -163,6 +173,7 @@ class Scanner_image_factory
         $get_factory->factory_identify_sample_init(true);
         /*BAR CODE READSAMPLES*/
         $barCode = $get_factory->factory_read_barcode();
+        echo json_encode($barCode);
         if ($barCode["code"] == 200) {
             /*GET NEW SIZES*/
             $image_sizes = $get_factory->factory_getSizes();
@@ -175,18 +186,23 @@ class Scanner_image_factory
             /*ROTATE AGAIN AND GET SIZES*/
             $get_factory->factory_rotate(180, "path_process", "path_process");
             $get_factory->factory_rotate(180, "path_process", "path_process", "local");
+            sleep(1);
             /*CRAETE NEW SAMPLE*/
             $get_factory->factory_identify_sample_init(true);
             $secondTry = $get_factory->factory_read_barcode();
             if ($secondTry["code"] == 400) {
                 $get_factory->build["crop_index"] = 4;
                 $get_factory->factory_identify_sample_init(true);
+                $get_factory->build["identify"] = array();
                 $get_factory->build["identify"]["origin"] = "TESSERACT";
             }
+            $get_factory->build["identify"] = array();
+            $get_factory->build["identify"]["origin"] = "TESSERACT";
         }
         $factory->build = $get_factory->build;
         $factory->image = $get_factory->image;
         return $get_factory->build;
+        return;
     }
     /*INIT IDENTIFY*/
     public function images_factory_init_identify()
