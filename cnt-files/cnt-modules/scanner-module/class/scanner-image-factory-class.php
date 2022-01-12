@@ -67,35 +67,31 @@ class Scanner_image_factory
                     $image_sizes = $get_factory->factory_getSizes();
                 }
                 $get_factory->build["sizes"] = $image_sizes;
-                echo json_encode($get_factory);
                 /*UPDATE BUILD*/
-                //$factory->image = $get_factory->image;
-                //$factory->build = $get_factory->build;
+                $factory->image = $get_factory->image;
+                $factory->build = $get_factory->build;
                 /*SET ORIENTATION OF SAMPLES*/
-                //$builds = $factory->images_factory_orientations();
-                //$factory->build = $builds;
-                //$factory->swit = "init-identify-nfe";
-                //return $factory->images_factory();
+                $builds = $factory->images_factory_orientations();
+                $factory->build = $builds;
+                $factory->swit = "init-identify-nfe";
+                return $factory->images_factory();
                 break;
             case 'init-identify-nfe':
                 $factory->build = $this->build;
                 $factory->image = $this->image;
+                echo json_encode($factory->build);
                 /*IDENTIFY ZBAR | TESSERACT | TESSERACT-FAILS*/
                 if ($factory->build["identify"]["origin"] == "ZBAR") {
                     $barCode = $this->build["identify"]["raw"];
                     sleep(1);
                     $zbar_builds = $factory->images_factory_identify($barCode);
-                    echo json_encode(array("zbar:"));
-                    echo json_encode($zbar_builds);
-                }/*
+                }
                 if ($factory->build["identify"]["origin"] == "TESSERACT") {
-                    $tessa = $this->build["identify"]["raw"];
-                    sleep(1);
                     $factory->swit = "tesseract-ident-steps";
                     echo json_encode($this);
                     //$tessa = $factory->images_factory();
                     //$factory->build = $tessa;
-                }*/
+                }
                 //$factory->build["crop_index"] = 3;
                 //$new_builds = $factory->images_factory_init_identify();
                 //$factory->build = $new_builds;
