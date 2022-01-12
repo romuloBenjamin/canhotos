@@ -1,0 +1,54 @@
+{
+    "modules": [
+        {
+            "module": "public",
+            "folder":"class",
+            "file": "controladora"
+        },
+        {
+            "module": "public",
+            "folder":"class",
+            "file": "pagebuilder"
+        },
+        {
+            "module": "public",
+            "folder":"class",
+            "file": "gerador-listagens"
+        },
+        {
+            "module": "public",
+            "folder":"class",
+            "file": "paginations"
+        },
+        {
+            "module": "public",
+            "folder":"class",
+            "file": "paginations-loopdata"
+        },
+        {
+            "module": "public",
+            "folder":"class",
+            "file": "paginations-factory"
+        },
+        {
+            "module": "scanner",
+            "folder":"class",
+            "file": "scanner-compound"
+        },
+        {
+            "module": "scanner",
+            "folder":"class",
+            "file": "scanner-factory"
+        },
+        {
+            "module": "scanner",
+            "folder":"class",
+            "file": "scanner-image-factory"
+        },
+        {
+            "module": "scanner",
+            "folder":"class",
+            "file": "scanner-tesseract"
+        }
+    ]
+}

@@ -1,0 +1,117 @@
+header {
+    width: $fullViewPW;
+    height: $fullHeight - 50%;
+    @include backgrounds($colors: rgba(48, 83, 127, 1));
+    section.first-container-header-page {
+        @include margins;
+        align-items: center;
+        width: $fullWidth - 20%;
+        height: $fullHeight;
+        div.coluna-01 {
+            width: $fullWidth - 30%;
+            align-items: center;
+            height: inherit;
+            div.logo {
+                a {
+                    img {
+                        height: $fullHeight;
+                        display: block;
+                        @include margins;
+                    }
+                }
+            }
+        }
+        div.coluna-02 {
+            max-width: 29%;
+            min-width: 10%;
+            height: inherit;
+            a.login-pseudo-btn,
+            a.login-container-btn,
+            * {
+                @include fontFormater($colors: rgba(255, 255, 255, 1));
+            }
+            a.login-pseudo-btn,
+            a.login-container-btn {
+                transition: height ease 1s;
+                -webkit-transition: height ease 1s;
+                -moz-transition: height ease 1s;
+                -ms-transition: height ease 1s;
+                -o-transition: height ease 1s;
+            }
+            a.login-pseudo-btn,
+            a.login-container-btn {
+                width: $fullWidth;
+                height: 45px;
+                align-items: center;
+                cursor: pointer;
+                span {
+                    margin-left: 5px;
+                    i {
+                        color: rgb(23, 40, 61);
+                        font-size: $fontSise + 0.6rem;
+                    }
+                }
+            }
+            a.login-pseudo-btn:hover,
+            a.login-container-btn:hover {
+                @include backgrounds($colors: rgba(23, 40, 61, 0.8));
+                height: 45px;
+                span {
+                    i {
+                        color: rgba(255, 255, 255, 1);
+                    }
+                }
+            }
+            div.loginOptions {
+                transition: all 1s ease-in-out;
+                -webkit-transition: all 1s ease-in-out;
+                -moz-transition: all 1s ease-in-out;
+                -ms-transition: all 1s ease-in-out;
+                -o-transition: all 1s ease-in-out;
+            }
+            div.loginOptions {
+                ul {
+                    position: absolute;
+                    box-shadow: 0px 9px 10px -4px rgba(0, 0, 0, 0.5);
+                    li:first-child {
+                        border-top-left-radius: 0px !important;
+                        border-top-right-radius: 0px !important;
+                    }
+                    li:last-child {
+                        border: none !important;
+                    }
+                    li {
+                        @include backgrounds($colors: rgba(48, 83, 127, 1));
+                        @include paddings($top: 0.4rem, $left: 0.9rem);
+                        @include eachBorders($top: 0, $left: 0, $right: 0, $colors: rgba(255, 255, 255, 1));
+                        a,
+                        a:hover,
+                        a:active {
+                            width: $fullWidth;
+                            @include fontFormater($colors: rgba(255, 255, 255, 1));
+                            @include textFormater($weight: normal);
+                            i {
+                                margin-right: 0.35rem;
+                            }
+                        }
+                        a:hover {
+                            @include fontFormater($colors: rgba(255, 255, 255, 1));
+                            @include textFormater($weight: normal, $decoration: underline);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    section.second-container-header-page {
+        @include backgrounds;
+        @include eachBorders($colors: rgba(228, 228, 228, 1), $top: 0, $left: 0, $right: 0, $ifb: true);
+        width: $fullWidth;
+        div.inner-container-header {
+            width: $fullWidth - 20%;
+            height: $fullHeight;
+            justify-content: space-between;
+            @include paddings($top: 0.5rem, $left: 0);
+        }
+    }
+}

@@ -1,0 +1,31 @@
+{
+    "dataset": [
+        {
+            "status":"1",
+            "msn":"Loopdata gerado com Sucesso! ->listar-empresas",
+            "totalRegistros": 5,
+            "data":[
+                {
+                    "ids" : "2",
+                    "empresa" : "Sales Indústria"
+                },
+                {
+                    "ids" : "3",
+                    "empresa" : "Sales Equipamentos"
+                },
+                {
+                    "ids" : "6",
+                    "empresa" : "Comércio Sandalo"
+                },
+                {
+                    "ids" : "7",
+                    "empresa" : "Sandalo Equipamentos"
+                },
+                {
+                    "ids" : "8",
+                    "empresa" : "Dona Descartáveis"
+                }
+            ]
+        }
+    ]
+}

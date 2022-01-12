@@ -1,0 +1,12 @@
+{
+    "scanners": [
+        {
+            "name": "Scanner 1",
+            "address": "172.16.1.76"
+        },
+        {
+            "name": "Scanner 2",
+            "address": "172.16.2.213"
+        }
+    ]
+}

@@ -1,0 +1,36 @@
+{
+    "module":"public",
+    "folder":"template/defaults",
+    "defaultPages": [
+        {
+            "file":"main"
+        },
+        {
+            "file":"container"
+        },
+        {
+            "file":"container-actions"
+        },
+        {
+            "file":"container-paginations"
+        },
+        {
+            "file":"container-load-more"
+        },
+        {
+            "file":"container-dados-retorno"
+        },
+        {
+            "file":"container-cadastro"
+        },
+        {
+            "file":"container-retorno-nfe"
+        },
+        {
+            "file":"container-avarias-nfe"
+        },
+        {
+            "file":"container-feedback-nfe"
+        }
+    ]
+}

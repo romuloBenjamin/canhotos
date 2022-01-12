@@ -1,0 +1,52 @@
+footer {
+    width: $fullWidth;
+    @include backgrounds($colors: rgba(48, 83, 127, 1));
+    @include fontFormater($colors: rgba(255, 255, 255, 1));
+    @include textFormater($weight: normal);
+    @include paddings($top: 0.65rem, $left: 0, $bottom: 0);
+    section.footer-menus {
+        @include margins;
+        width: $fullWidth - 20%;
+    }
+    section.rights {
+        @include margins;
+        width: $fullWidth;
+        @include backgrounds($colors: rgba(30, 64, 107, 1));
+        p {
+            @include margins;
+            @include paddings($top: 0.85rem, $left: 0);
+            @include fontFormater($size: 0.8rem, $colors: rgba(255, 255, 255, 1));
+            @include textFormater($weight: normal);
+            a {
+                @include fontFormater($size: 0.8rem, $colors: rgba(0, 153, 255, 1));
+                @include textFormater($weight: normal);
+                @include margins($top: auto, $left: 0.5rem);
+            }
+            a:hover,
+            a:visited,
+            a:active {
+                @include fontFormater($size: 0.8rem, $colors: rgba(35, 129, 191, 1));
+                @include textFormater($weight: normal, $decoration: underline);
+            }
+        }
+    }
+    section {
+        div.coluna {
+            width: 20rem;
+            p {
+                @include fontFormater($size: 0.8rem, $colors: rgba(255, 255, 255, 1));
+            }
+            hr {
+                width: $fullWidth;
+                @include backgrounds($colors: rgba(255, 255, 255, 0.3));
+            }
+            ul {
+                li {
+                    a {
+                        @include fontFormater($size: 0.8rem, $colors: rgba(255, 255, 255, 1));
+                    }
+                }
+            }
+        }
+    }
+}

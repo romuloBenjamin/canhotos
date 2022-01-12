@@ -1,0 +1,14 @@
+{
+    "conexoes":[
+        {
+            "module":"sql",
+            "folder":true,
+            "file":"conexao"
+        },
+        {
+            "module":"sql",
+            "folder":false,
+            "file":"Main"
+        }
+    ]
+}

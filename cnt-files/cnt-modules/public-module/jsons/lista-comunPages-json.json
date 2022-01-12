@@ -1,0 +1,19 @@
+{
+    "comunPages":[
+        {
+            "module":"logistica",
+            "folder":false,
+            "file":"retornoNFES"
+        },
+        {
+            "module":"logistica",
+            "folde":false,
+            "file":"novoRegistro"
+        },
+        {
+            "module":"logistica",
+            "folde":false,
+            "file":"feedbacks"
+        }
+    ]
+}

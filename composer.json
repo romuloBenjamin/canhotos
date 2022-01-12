@@ -1,0 +1,8 @@
+{
+    "require": {
+        "setasign/fpdf": "1.8.*",
+        "setasign/fpdi": "^2.0",
+        "robbiep/zbar-qrdecoder": "^2.0",
+        "tecnickcom/tcpdf": "*"
+    }
+}
