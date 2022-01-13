@@ -16,7 +16,7 @@ $louds->loudModules();
 require_once('../../../../vendor/autoload.php');
 /*VARIAVEIS*/
 $data = json_decode($_GET["id"]);
-/*GERAR PROCESSO*/
+/*GERAR PROCESSO -> create init samples*/
 $process = new Scanner_compound();
 $process->entry = $data->file;
 $process->swit = "create-jpeg";
@@ -24,9 +24,21 @@ $process->build = array();
 $process->build["scannerID"] = $data->scanner;
 $process->build["who"] = $data->user;
 $new_images = $process->compound_scanner();
+/*GERAR PROCESSO -> get size datas*/
 $process->entry = $new_images;
 $process->swit = "jpeg-get-data-parameters";
-$data = $process->compound_scanner();
-//echo json_encode($data);
+$builds = $process->compound_scanner();
+$process->build = $builds;
+/*CONFIRM IF NEED TO FLIP IMAGE & BAR CODE READER*/
+$process->swit = "there-is-need-to-flip-sample";
+$barCode = $process->compound_scanner();
+/*GET IDENTIFY*/
+//if(is_null($builds))
+if (!is_null($barCode)) {
+    $process->swit = "zbar-identify";
+    $process->build["zbar_read"] = $barCode;
+    $builds = $process->compound_scanner();
+}
+echo json_encode($builds);
 //if (!is_null($data)) $nArray[] = $data;
 //echo json_encode($images_scanner);

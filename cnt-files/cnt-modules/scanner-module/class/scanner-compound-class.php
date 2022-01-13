@@ -39,6 +39,14 @@ class Scanner_compound
                 $compound->build = $builds;
                 return $compound->compound_factory_images();
                 break;
+            case 'there-is-need-to-flip-sample':
+                $compound->build = $this->build;
+                return $compound->compound_factory_images();
+                break;
+            case 'zbar-identify':
+                $compound->build = $this->build;
+                return $compound->compound_factory_images();
+                break;
             case 'verificar-certificados-expirados':
                 $compound->build = $this->build;
                 return $compound->compound_factory();
