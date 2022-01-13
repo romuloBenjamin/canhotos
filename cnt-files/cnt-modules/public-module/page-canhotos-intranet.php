@@ -15,9 +15,12 @@
             <div id="buttonContainer"></div>
             <div class="extra-container">
                 <button onclick="retry()" class="btn btn-warning">Identificar Novamente</button>
-                <div class="d-none justify-content-center align-items-center message-box">
-                    <div id="spinner" class="d-none spinner-border" role="status"></div>
-                    <span class="result" id="result"></span>
+                <div class="d-none flex-column justify-content-center align-items-center message-box-container">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div id="spinner" class="d-none spinner-border" role="status"></div>
+                        <div class="message-box" id="messageBox"></div>
+                    </div>
+                    <div class="extra-message-box" id="extraMessageBox"></div>
                 </div>
             </div>
         </div>

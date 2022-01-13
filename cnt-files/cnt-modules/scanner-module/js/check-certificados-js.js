@@ -1,6 +1,7 @@
 async function getExpiredDigitalSigns() {
     var certificados = await axios.get("./cnt-files/cnt-modules/scanner-module/core/listar-certificados-vencidos-core.php");    
     var placer_certificados = document.querySelector("div#alert-certificados");
+    const certificadosExpirados = [];
     if(certificados.data.length > 1){
         for (let index = 0; index < certificados.data.length; index++) {
             const certificados_instalados = certificados.data[index];
@@ -12,22 +13,24 @@ async function getExpiredDigitalSigns() {
             cloner.innerHTML += "<br> <b>Situação:</b> ";
             if(certificados_instalados.timer === "Certificado Expirado!") {
                 cloner.innerHTML += "<span>" + certificados_instalados.timer + "</span>";
-                sendExpiredCertMail(certificados_instalados);
+                certificadosExpirados.push(certificados_instalados);
             } else {
                 cloner.innerHTML += certificados_instalados.timer;
             }
             placer_certificados.querySelector("ul").appendChild(cloner);
         }
+        if(certificadosExpirados.length > 0) sendExpiredCertMail(certificadosExpirados);
         if(placer_certificados.classList.contains("d-none")) placer_certificados.classList.remove("d-none");
         placer_certificados.querySelector("li#cloneNode").remove();
     }    
 }
 getExpiredDigitalSigns();
 
-const sendExpiredCertMail = async (certificado) => {
-    console.log("Atualizar certificado");
+// Send an email with all expired certification
+const sendExpiredCertMail = async (certificados) => {
+    console.log("Atualizar certificado:");
     const response = await axios.post("./cnt-files/cnt-modules/scanner-module/core/send-expired-cert-mail-core.php", {
-        certificado: certificado
+        certificados
     });
-    console.log(response);
+    console.log(response.data);
 }

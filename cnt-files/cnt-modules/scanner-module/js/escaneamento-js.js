@@ -1,14 +1,15 @@
 // The scan directory currently being used
-let scanDir = null;
+let scannerId = null;
 let username = null;
 
 const spinner = document.querySelector("#spinner");
-const messageBox = document.querySelector("#result");
+const messageBox = document.querySelector("#messageBox");
+const extraMessageBox = document.querySelector("#extraMessageBox");
 
 // Read the json with the scanners' data and add the buttons
 const addScannerButtons = async () => {
     let json = await axios.get("./cnt-files/cnt-modules/scanner-module/jsons/lista-scanners-json.json");
-    console.log(json.data.scanners);
+    //console.log(json.data.scanners);
     const buttonContainer = document.getElementById("buttonContainer");
     for(let scanner of json.data.scanners) {
         const button = document.createElement("BUTTON");
@@ -40,8 +41,8 @@ const getUsername = async () => {
 
 // Get the scanner data and calls the scan process on the chosen server if available
 const scan = async (scanner) => {
-    scanDir = scanner.scanDir;
-    console.log("NOME DO SCANNER: "+scanner.name);
+    scannerId = scanner.scanDir;
+    //console.log(scanner.name);
     showSpinner();
     showMessage("Iniciando...");
     try {
@@ -49,7 +50,7 @@ const scan = async (scanner) => {
         username = await getUsername();
         if(!username) return;
         let response = await axios.post("http://" + scanner.address + ":8090/scan", { key: scanner.name, scanDir: scanner.scanDir, username: username });
-        //console.log(response.data);
+        console.log(response.data);
         // If the scan was successfull
         if(response.data.scanFinished === true) {
             // If 1 or more items were scanned
@@ -115,9 +116,15 @@ const hideSpinner = () => {
 
 // Shows the passed message in the box
 const showMessage = (message) => {
-    messageBox.parentNode.classList.remove("d-none");
-    messageBox.parentNode.classList.add("d-flex");
+    messageBox.parentNode.parentNode.classList.remove("d-none");
+    messageBox.parentNode.parentNode.classList.add("d-flex");
     messageBox.innerHTML = message;
+    console.log(message)
+}
+
+// Show the passed message as an extra message below the message box' text
+const showExtraMessage = (message) => {
+    extraMessageBox.innerHTML = "\n" + message;
 }
 
 /*IDENTIFICAR DE CANHOTOS ESCANEADOS*/
@@ -125,7 +132,7 @@ async function identify() {
     let json;
     let userInfo;
     // If the user didn't press a button
-    if(!scanDir) {
+    if(!scannerId) {
         // Retrieve the username
         username = await getUsername();
         // User is not logged
@@ -135,12 +142,12 @@ async function identify() {
         } else {
             // Get json if it exists
             json = await getIdentifyProcessesRunningJson();
-            console.log("Current: ", json);
+            //console.log("Current: ", json);
             userInfo = json[username];
             // Loop through scanner names and check if the identify process was running previously for one of them
             const keys = Object.keys(userInfo);
             keys.forEach(key => {
-                if(userInfo[key]) scanDir = key;
+                if(userInfo[key]) scannerId = key;
             });
         }
     } else {
@@ -151,11 +158,11 @@ async function identify() {
 
         // Add the new process running for the chosen scanner in the current data
         if(userInfo) {
-            userInfo[scanDir] = true;
+            userInfo[scannerId] = true;
         } else {
             // Or add it as new data
             userInfo = {
-                [scanDir]: true
+                [scannerId]: true
             }
         }
 
@@ -167,37 +174,51 @@ async function identify() {
         });
     }
 
-    if(!scanDir) {
+    if(!scannerId) {
         showMessage("Nenhum processo prévio de identificação encontrado.");
         return;
     }
     
     showMessage("Iniciando identificação...");
-    //console.log("Identificação iniciada em " + scanDir);
+    //console.log("Identificação iniciada em " + scannerId);
 
     // GET RESULTSET
     try {
         showSpinner();
         showMessage("Identificando canhotos. Aguarde...");
         const dirData = {
-            scanner: scanDir,
+            scanner: scannerId,
             user: username
         };
         const response = await axios.get("./cnt-files/cnt-modules/scanner-module/core/listar-arquivos-escaneados-core.php?id=" + JSON.stringify(dirData));
-        const data = response.data;
-        console.log(data);        
-        
-        for(let item of data) {
+        const scannedItems = response.data;
+        console.log(scannedItems);
+        const tesseractData = [];
+        for(const [index, item] of scannedItems.entries()) {
             dirData.file = item;
             const result = await axios.get("./cnt-files/cnt-modules/scanner-module/core/process-arquivo-escaneado-core.php?id=" + JSON.stringify(dirData));
-            console.log(result.data);
+            const data = result.data;
+            // Check for maximum execution time reached
+            const stringfiedData = data.toString();
+            //console.log(stringfiedData);
+            if(stringfiedData.includes("Maximum execution time")) {
+                console.log("Maximum execution time reached!");
+            }
+            showMessage("Identificando... " + (index + 1) + "/" + scannedItems.length);
+            showExtraMessage(JSON.stringify(data));
+            if(data.isTeresseract) {
+                tesseractData.push(data);
+            } else {
+                const logResult = await axios.post("./cnt-files/cnt-modules/scanner-module/core/add-to-log-file-core.php", data);
+                console.log(logResult.data);
+            }
         }
         showMessage("Identificação terminada.");
-        if(data.length > 0) {
-            localStorage.setItem("tesseract-data", JSON.stringify(data));
+        if(tesseractData.length > 0) {
+            localStorage.setItem("tesseract-data", JSON.stringify(tesseractData));
             openPopUp();
         }
-        //console.log("Removing " + scanDir);
+        //console.log("Removing " + scannerId);
 
         // Get the current json
         json = await getIdentifyProcessesRunningJson();
@@ -205,16 +226,16 @@ async function identify() {
     
         // Remove the current scanner from the userinfo
         userInfo = json[username];
-        if(userInfo) delete userInfo[scanDir];
+        if(userInfo) delete userInfo[scannerId];
     
         await updateIdentifyProcessesRunningJson({
             [username]: userInfo
         });
         //console.log("Updated: ", username, userInfo);
     
-        //console.log("Identificação terminada em " + scanDir);
+        //console.log("Identificação terminada em " + scannerId);
     } catch (error) {
-        //console.log(error);
+        console.log(error);
         showMessage("Ocorreu uma falha.");
     }
 

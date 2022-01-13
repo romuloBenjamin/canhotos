@@ -73,12 +73,18 @@ class Scanner_image_factory
                 $factory->build = $this->build;
                 return $factory->images_barcode_reader();
                 break;
-            case 'zbar-identify':
+            case 'zbar-identify-reads':
                 $factory->image = $this->image;
                 $factory->build = $this->build;
                 return $factory->images_factory_identify_init();
                 break;
-            case 'tesseract-identify':
+            case 'zbar-identify':
+                $factory->image = $this->image;
+                $factory->build = $this->build;
+                $factory->swit = "start-to-certify";
+                return $factory->images_factory();
+                break;
+            case 'tesseract-identify-reads':
                 $factory->image = $this->image;
                 $factory->build = $this->build;
                 return $factory->images_factory_tesseract_init();
@@ -238,7 +244,8 @@ class Scanner_image_factory
             $factory->build = $builds;
             return $factory->images_factory_tesseract_init();
         }
-        return $tessa;
+        $factory->build["tesseract_read"] = $tessa["data"];
+        return $factory->build;
     }
 
 
@@ -314,12 +321,12 @@ class Scanner_image_factory
             $forcar->build["crop"] = $dimensions;
             /*NEW SAMPLE*/
             $get_factory->factory_identify_sample_init(true);
-            $reads_raws = $get_factory->factory_read_sample();
+            //$reads_raws = $get_factory->factory_read_sample();
             /*FILL TESSERACT READS*/
-            $reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-            $reads = explode(" ", $reads_raws);
-            $get_factory->build["tesseract_read"] = $reads;
-            $forcar->build["tesseract_read"] = $reads;
+            //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
+            //$reads = explode(" ", $reads_raws);
+            //$get_factory->build["tesseract_read"] = $reads;
+            //$forcar->build["tesseract_read"] = $reads;
             $forcar->build["identify"] = array("raw" => "TESSERACT");
             return $forcar->build;
         }
@@ -356,12 +363,12 @@ class Scanner_image_factory
             $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
             /*RECREATE SAMPLE AND READ*/
             $get_factory->factory_identify_sample_init(true);
-            $reads_raws = $get_factory->factory_read_sample();
+            //$reads_raws = $get_factory->factory_read_sample();
             /*UPDATE TESSERACT READS*/
-            $reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-            $reads = explode(" ", $reads_raws);
-            $get_factory->build["tesseract_read"] = $reads;
-            $identify->build["tesseract_read"] = $reads;
+            //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
+            //$reads = explode(" ", $reads_raws);
+            //$get_factory->build["tesseract_read"] = $reads;
+            //$identify->build["tesseract_read"] = $reads;
             /*UPDATE BUILD*/
             $identify->build = $get_factory->build;
             /*FINALIZA*/
@@ -403,12 +410,12 @@ class Scanner_image_factory
         $identify->build = $get_factory->build;
         /*CREATE NEW SAMPLE*/
         $get_factory->factory_identify_sample_init(true);
-        $reads_raws = $get_factory->factory_read_sample();
+        //$reads_raws = $get_factory->factory_read_sample();
         /*UPDATE TESSERACT READS*/
-        $reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-        $reads = explode(" ", $reads_raws);
-        $get_factory->build["tesseract_read"] = $reads;
-        $identify->build["tesseract_read"] = $reads;
+        //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
+        //$reads = explode(" ", $reads_raws);
+        //$get_factory->build["tesseract_read"] = $reads;
+        //$identify->build["tesseract_read"] = $reads;
         /*IDENTIFICAÇÃO DE DADOS*/
         if (array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $identify->build["tesseract_read"])) {
             return SALES_EQUIP["CNPJ"];
@@ -444,12 +451,12 @@ class Scanner_image_factory
         $identify->build = $get_factory->build;
         /*CREATE NEW SAMPLE*/
         $get_factory->factory_identify_sample_init(true);
-        $reads_raws = $get_factory->factory_read_sample();
+        //$reads_raws = $get_factory->factory_read_sample();
         /*UPDATE TESSERACT READS*/
-        $reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-        $reads = explode(" ", $reads_raws);
-        $get_factory->build["tesseract_read"] = $reads;
-        $identify->build["tesseract_read"] = $reads;
+        //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
+        //$reads = explode(" ", $reads_raws);
+        //$get_factory->build["tesseract_read"] = $reads;
+        //$identify->build["tesseract_read"] = $reads;
         if (array_intersect(SANDALO_EQUIP["SECONDARY_KNOW_NAMES"], $identify->build["tesseract_read"])) {
             return SANDALO_EQUIP["CNPJ"];
         } else {
@@ -484,17 +491,17 @@ class Scanner_image_factory
         $identify->build = $get_factory->build;
         /*CREATE NEW SAMPLE*/
         $get_factory->factory_identify_sample_init(true);
-        $reads_raws = $get_factory->factory_read_sample();
+        //$reads_raws = $get_factory->factory_read_sample();
         /*UPDATE TESSERACT READS*/
-        $reads_raws = trim(str_replace(ONLY_NUMBERS, "", mb_strtolower($reads_raws["data"], "UTF-8")));
-        $reads = strlen(str_replace(" ", "", $reads_raws));
+        //$reads_raws = trim(str_replace(ONLY_NUMBERS, "", mb_strtolower($reads_raws["data"], "UTF-8")));
+        //$reads = strlen(str_replace(" ", "", $reads_raws));
         /*IDENT NFE*/
-        if ($reads >= 6) {
-            return $reads;
-        } else {
-            $try++;
-            return $identify->getNFES($try);
-        }
+        //if ($reads >= 6) {
+        //return $reads;
+        //} else {
+        //$try++;
+        //return $identify->getNFES($try);
+        //}
     }
     /*--------------------------------------------->IDENTIFICAÇÃO DO CANHOTO<---------------------------------------------*/
     /*SET IDENTIFY PARA BARCODE*/
@@ -528,6 +535,8 @@ class Scanner_image_factory
         if (!is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = $tessa["nfe"];
         return $identify->build;
     }
+
+
     /*------------------------------------------------>CERTIFICAR<-------------------------------------------------------*/
     public function images_factory_certify()
     {
@@ -559,6 +568,7 @@ class Scanner_image_factory
         if ($this->build["identify"]["origin"] == "ZBAR") {
             $get_factory->factory_turn_image_to_pdf();
             $get_factory->factory_erase_link();
+            return $get_factory->build;
         }
         /*TO TESSERACT*/
         if ($this->build["identify"]["origin"] == "TESSERACT") {
@@ -570,7 +580,6 @@ class Scanner_image_factory
             $get_factory->factory_turn_image_to_pdf();
             $get_factory->factory_erase_link();
         }
-        return;
     }
     /*SALVAR TESSERACT*/
     public function images_factory_tesseract_save()

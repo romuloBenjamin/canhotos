@@ -102,8 +102,8 @@ class Scanner_factory
     /*REMOVE IMAGE FROM FOLDERS*/
     public function factory_erase_link()
     {
-        $path_to_delete_rede = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]) . "\\" . $this->build["scannerID"];
-        $path_to_delete_local = $this->build["path_local"] . "cnt-files/images/scanner/" . $this->build["scannerID"];
+        $path_to_delete_rede = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]) . "\\" . $this->build["scannerID"] . "\\" . $this->build["who"];
+        $path_to_delete_local = $this->build["path_local"] . "cnt-files/images/scanner/" . $this->build["scannerID"] . "/" . $this->build["who"];
         /*PATH TO SERVER*/
         $path_server_image_process = $path_to_delete_rede . "\\" . str_replace("./scanner/", "", $this->build["path_process"]);
         $path_server_image_results = $path_to_delete_rede . "\\" . str_replace("./scanner/", "", $this->build["path_results"]);
@@ -285,9 +285,9 @@ class Scanner_factory
     /*CREATE PDF FILE FOM IMAGE*/
     public function factory_turn_image_to_pdf()
     {
-        $path_to_rede = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]) . "\\" . $this->build["scannerID"];
+        $path_to_rede = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]) . "\\" . $this->build["scannerID"] . "\\" . $this->build["who"];
         $path_to_crt = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]);
-        $path_tmp = $this->build["path_local"] . "/cnt-files/images/scanner/" . $this->build["scannerID"] . "/results";
+        $path_tmp = $this->build["path_local"] . "cnt-files/images/scanner/" . $this->build["scannerID"] . "/" . $this->build["who"] . "/results";
         /*IMAGE DATA & PATH*/
         $path_save_file = $path_to_rede;
         $path_open_file = $path_to_rede . str_replace("./scanner/", "\\", $this->build["path_process"]);
@@ -300,54 +300,59 @@ class Scanner_factory
         /*CREATE TMP*/
         $file_image = file_get_contents($path_open_file . "\\" . $this->image);
         file_put_contents($path_tmp . "/" . $this->image, $file_image);
-        //TCPDF
-        $tcpdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        // set document information
-        $tcpdf->SetCreator(PDF_CREATOR);
-        $tcpdf->SetAuthor('TI Sales Equip');
-        $tcpdf->SetTitle($format_and_extensions[0]);
-        // set margins
-        $tcpdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-        // set auto page breaks
-        $tcpdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-        // set image scale factor
-        $tcpdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-        //ADD PAGE
-        $tcpdf->AddPage();
-        // set JPEG quality
-        $tcpdf->setJPEGQuality(99);
-        // The '@' character is used to indicate that follows an image data stream and not an image file name
-        //$pdf->Image('@' . $imgdata);
-        $tcpdf->Image($path_tmp . "/" . $this->image, 2, 10, 200, 50, "jpeg", false);
-        //CERTIFICAR PDF
-        // set certificate file
-        $certificate = 'file://' . $this->build["crt"]["path"];
-        // set document signature
-        $tcpdf->setSignature($certificate, $certificate, '', '', 2, '');
-        $tcpdf->SetFont('helvetica', '', 5);
-        // print a line of text
-        $text1 = $this->build["crt"]["text"]["subject"]["CN"];
-        $text2 = date("Y/m/d H:i");
-        $text3 = "Cert. Canhoto NFe";
-        $text4 = "Sao Paulo - Brasil";
-        $tcpdf->MultiCell(40, 5, $text1, 1, "L", false, 1, null, 30);
-        $tcpdf->Cell(40, 1, $text2, 0, 1);
-        $tcpdf->Cell(40, 1, $text3, 0, 1);
-        $tcpdf->Cell(40, 1, $text4, 0, 1);
-        // create content for signature (image and/or text)
-        $tcpdf->Image($path_tmp . "/" . $format_and_extensions[0] . '.png', 180, 60, 15, 15, 'PNG');
-        // define active area for signature appearance
-        $tcpdf->setSignatureAppearance(180, 60, 15, 15);
-        // *** set an empty signature appearance ***
-        $tcpdf->addEmptySignatureAppearance(180, 80, 15, 15);
-        //CERTIFICAR PDF
-        $fileName = $this->build["identify"]["cnpj"] . str_pad($this->build["identify"]["nfe"], 9, "0", STR_PAD_LEFT);
-        $tcpdf->Output($path_tmp . "/" . $fileName . ".pdf", "F");
-        $server = file_get_contents($path_tmp . "/" . $fileName . ".pdf");
-        $path_save_file = $path_save_file . "/" . date('Y') . "/" . date('m') . "/" . date('d');
-        if (file_exists($path_save_file . "\\" . $fileName . ".pdf")) file_put_contents($path_save_file . "\\" . $fileName . ".pdf", "");
-        file_put_contents($path_save_file . "\\" . $fileName . ".pdf", $server);
-        return;
+
+        try {
+            //TCPDF
+            $tcpdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+            // set document information
+            $tcpdf->SetCreator(PDF_CREATOR);
+            $tcpdf->SetAuthor('TI Sales Equip');
+            $tcpdf->SetTitle($format_and_extensions[0]);
+            // set margins
+            $tcpdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+            // set auto page breaks
+            $tcpdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+            // set image scale factor
+            $tcpdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+            //ADD PAGE
+            $tcpdf->AddPage();
+            // set JPEG quality
+            $tcpdf->setJPEGQuality(99);
+            // The '@' character is used to indicate that follows an image data stream and not an image file name
+            //$pdf->Image('@' . $imgdata);
+            $tcpdf->Image($path_tmp . "/" . $this->image, 2, 10, 200, 50, "jpeg", false);
+            //CERTIFICAR PDF
+            // set certificate file
+            $certificate = 'file://' . $this->build["crt"]["path"];
+            // set document signature
+            $tcpdf->setSignature($certificate, $certificate, '', '', 2, '');
+            $tcpdf->SetFont('helvetica', '', 5);
+            // print a line of text
+            $text1 = $this->build["crt"]["text"]["subject"]["CN"];
+            $text2 = date("Y/m/d H:i");
+            $text3 = "Cert. Canhoto NFe";
+            $text4 = "Sao Paulo - Brasil";
+            $tcpdf->MultiCell(40, 5, $text1, 1, "L", false, 1, null, 30);
+            $tcpdf->Cell(40, 1, $text2, 0, 1);
+            $tcpdf->Cell(40, 1, $text3, 0, 1);
+            $tcpdf->Cell(40, 1, $text4, 0, 1);
+            // create content for signature (image and/or text)
+            $tcpdf->Image($path_tmp . "/" . $format_and_extensions[0] . '.png', 180, 60, 15, 15, 'PNG');
+            // define active area for signature appearance
+            $tcpdf->setSignatureAppearance(180, 60, 15, 15);
+            // *** set an empty signature appearance ***
+            $tcpdf->addEmptySignatureAppearance(180, 80, 15, 15);
+            //CERTIFICAR PDF
+            $fileName = $this->build["identify"]["cnpj"] . str_pad($this->build["identify"]["nfe"], 9, "0", STR_PAD_LEFT);
+            $tcpdf->Output($path_tmp . "/" . $fileName . ".pdf", "F");
+            $server = file_get_contents($path_tmp . "/" . $fileName . ".pdf");
+            $path_save_file = $path_save_file . "/" . date('Y') . "/" . date('m') . "/" . date('d');
+            if (file_exists($path_save_file . "\\" . $fileName . ".pdf")) file_put_contents($path_save_file . "\\" . $fileName . ".pdf", "");
+            file_put_contents($path_save_file . "\\" . $fileName . ".pdf", $server);
+            return;
+        } catch (\Throwable $th) {
+            return $th;
+        }
     }
     /*VIEW IF DIGITAL SIGNS EXPIRED*/
     public function factory_expired_digitals_signs()
@@ -403,7 +408,6 @@ class Scanner_factory
         }
         return json_encode($nArray);
     }
-
     /*GET EMPRESA NAME FROM CNPJ*/
     public function get_empresa_cnpj($cnpj)
     {

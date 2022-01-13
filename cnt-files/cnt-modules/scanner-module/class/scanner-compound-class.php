@@ -43,11 +43,15 @@ class Scanner_compound
                 $compound->build = $this->build;
                 return $compound->compound_factory_images();
                 break;
+            case 'zbar-identify-reads':
+                $compound->build = $this->build;
+                return $compound->compound_factory_images();
+                break;
             case 'zbar-identify':
                 $compound->build = $this->build;
                 return $compound->compound_factory_images();
                 break;
-            case 'tesseract-identify':
+            case 'tesseract-identify-reads':
                 $compound->build = $this->build;
                 return $compound->compound_factory_images();
                 break;

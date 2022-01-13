@@ -32,17 +32,24 @@ $process->build = $builds;
 /*CONFIRM IF NEED TO FLIP IMAGE & BAR CODE READER*/
 $process->swit = "there-is-need-to-flip-sample";
 $barCode = $process->compound_scanner();
-/*GET IDENTIFY -> TESSERACT*/
+/*GET IDENTIFY READS -> TESSERACT READS*/
 if (is_null($barCode)) {
-    $process->swit = "tesseract-identify";
+    /*GET READS*/
+    $process->swit = "tesseract-identify-reads";
     $builds = $process->compound_scanner();
+    $process->build = $builds;
 }
-/*GET IDENTIFY -> ZBAR*/
+/*GET IDENTIFY & READS -> ZBAR*/
 if (!is_null($barCode)) {
-    $process->swit = "zbar-identify";
+    /*GET READS*/
+    $process->swit = "zbar-identify-reads";
     $process->build["zbar_read"] = $barCode;
     $builds = $process->compound_scanner();
+    $process->build = $builds;
+    $process->swit = "zbar-identify";
+    $builds = $process->compound_scanner();
 }
-echo json_encode($builds);
+$process->build = $builds;
+echo json_encode($process->build);
 //if (!is_null($data)) $nArray[] = $data;
 //echo json_encode($images_scanner);

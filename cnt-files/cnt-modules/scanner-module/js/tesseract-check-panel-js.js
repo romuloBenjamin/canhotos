@@ -29,8 +29,12 @@ const showTesseractItems = () => {
         const hidden = clone.querySelector("#oculta");
         hidden.id = hidden.id + "-" + index;
         hidden.name = hidden.id;
-        const hiddenData = {scanner:item.scannerID, image: item.image};
+        const hiddenData = {
+            scanner:item.scannerID,
+            image: item.image
+        };
         hidden.value = JSON.stringify(hiddenData);
+        console.log(item);
         // PLACE IMAGES
         const imagesArea = clone.querySelector("div.image-data > div.area-images");
         imagesArea.querySelector("#cloneImage").id = "sample-canhotos-" + index;
@@ -139,12 +143,17 @@ async function salvarTessa(e) {
     // If there's at least 1 item
     const data = [numberOfItems];
     // Add each item to the array
-    for(let i = 0; i < numberOfItems; i++) {
+    let i = 0;
+    while(i < numberOfItems) {
         data[i] = {
             cnpj: tesseractForm.elements["cnpj-" + i].value,
             nfe: tesseractForm.elements["nfe-" + i].value,
             oculta: tesseractForm.elements["oculta-" + i].value
         }
+        // Add the data to log
+        const addToLog = await axios.post("../../core/add-to-log-file-core.php", tesseractForm.elements["oculta-" + i].value);
+        console.log(addToLog.data);
+        i++;
     }
     console.log(data);
     try {
