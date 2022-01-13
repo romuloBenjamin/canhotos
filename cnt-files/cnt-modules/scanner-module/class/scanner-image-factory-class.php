@@ -218,7 +218,27 @@ class Scanner_image_factory
         $get_factory = new Scanner_factory();
         $get_factory->build = $factory->build;
         $get_factory->image = $factory->image;
-        return "tessa";
+        /*CHANGE CROP PATTERNS*/
+        $get_factory->build["crop_index"] = 5;
+        $crops = $get_factory->factory_crop_dimensions();
+        $get_factory->build["crop"] = $crops;
+        /*CREATE NEW SAMPLE*/
+        $get_factory->factory_identify_sample_init(true);
+        /*READ TESSERACT*/
+        $tessa = $get_factory->factory_read_tesseract();
+        if (intval($tessa["status"]) == 0) {
+            /*FLIP 90º ROTATE*/
+            $get_factory->factory_rotate(90, "path_process", "path_process");
+            $get_factory->factory_rotate(90, "path_process", "path_process", "local");
+            /*NEW SIZES*/
+            $sizes = $get_factory->factory_getSizes();
+            $factory->build["sizes"] = $sizes;
+            /*ORIENTATIONS*/
+            $builds = $factory->images_factory_orientations();
+            $factory->build = $builds;
+            return $factory->images_factory_tesseract_init();
+        }
+        return $tessa;
     }
 
 

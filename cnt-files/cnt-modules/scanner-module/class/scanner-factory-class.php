@@ -260,7 +260,7 @@ class Scanner_factory
     }
 
     /*READ SAMPLE*/
-    public function factory_read_sample()
+    public function factory_read_tesseract()
     {
         $tesseract = new Scanner_tesseract();
         $tesseract->build = $this->build;
