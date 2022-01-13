@@ -78,6 +78,11 @@ class Scanner_image_factory
                 $factory->build = $this->build;
                 return $factory->images_factory_identify_init();
                 break;
+            case 'tesseract-identify':
+                $factory->image = $this->image;
+                $factory->build = $this->build;
+                return $factory->images_factory_tesseract_init();
+                break;
             case 'tesseract-ident-steps':
                 /*SOMENTE PARA TESSERACT IDENT*/
                 $factory->build = $this->build;
@@ -146,6 +151,7 @@ class Scanner_image_factory
             return $factory->images_factory_orientations();
         }
     }
+    /*--------------------------------------------->IDENTIFY<---------------------------------------------*/
     /*ZBAR IDENTIFY*/
     public function images_factory_identify_init()
     {
@@ -195,14 +201,25 @@ class Scanner_image_factory
             if ($barCode["text"] != "") return $barCode["text"];
         } else {
             $try++;
-            $get_factory->factory_rotate(90, "path_process", "path_process");
-            $get_factory->factory_rotate(90, "path_process", "path_process", "local");
-            if ($try == 1) return;
-            if ($try <= 1) return $factory->images_barcode_reader($try);
+            $builds = $factory->images_factory_orientations();
+            $factory->build = $builds;
+            if ($try == 3) return;
+            if ($try <= 3) return $factory->images_barcode_reader($try);
         }
     }
     /*------------------------------------------->LEITOR TESSERACT<-------------------------------------*/
-
+    public function images_factory_tesseract_init()
+    {
+        /*SCANNER IMAGE*/
+        $factory = new Scanner_image_factory();
+        $factory->build = $this->build;
+        $factory->image = $this->image;
+        /*SCANNER FACTORY*/
+        $get_factory = new Scanner_factory();
+        $get_factory->build = $factory->build;
+        $get_factory->image = $factory->image;
+        return "tessa";
+    }
 
 
 

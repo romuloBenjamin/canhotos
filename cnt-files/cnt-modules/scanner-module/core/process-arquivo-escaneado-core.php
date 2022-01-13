@@ -32,8 +32,12 @@ $process->build = $builds;
 /*CONFIRM IF NEED TO FLIP IMAGE & BAR CODE READER*/
 $process->swit = "there-is-need-to-flip-sample";
 $barCode = $process->compound_scanner();
-/*GET IDENTIFY*/
-//if(is_null($builds))
+/*GET IDENTIFY -> TESSERACT*/
+if (is_null($barCode)) {
+    $process->swit = "tesseract-identify";
+    $builds = $process->compound_scanner();
+}
+/*GET IDENTIFY -> ZBAR*/
 if (!is_null($barCode)) {
     $process->swit = "zbar-identify";
     $process->build["zbar_read"] = $barCode;
