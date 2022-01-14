@@ -29,6 +29,7 @@ $process->entry = $new_images;
 $process->swit = "jpeg-get-data-parameters";
 $builds = $process->compound_scanner();
 $process->build = $builds;
+$process->build["images"] = $new_images;
 /*CONFIRM IF NEED TO FLIP IMAGE & BAR CODE READER*/
 $process->swit = "there-is-need-to-flip-sample";
 $barCode = $process->compound_scanner();
@@ -41,8 +42,7 @@ if (is_null($barCode)) {
     $process->build = $builds;
     $process->swit = "tesseract-identify-steps";
     $builds = $process->compound_scanner();
-    echo json_encode($builds);
-    //$process->build = $builds;
+    $process->build = $builds;
 }
 /*GET IDENTIFY & READS -> ZBAR*/
 if (!is_null($barCode)) {
@@ -54,5 +54,4 @@ if (!is_null($barCode)) {
     $process->swit = "zbar-identify";
     $builds = $process->compound_scanner();
 }
-//$process->build = $builds;
-//echo json_encode($process->build);
+echo json_encode($process->build);

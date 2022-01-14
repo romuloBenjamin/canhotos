@@ -14,16 +14,16 @@ const showTesseractItems = () => {
     for(let item of data) {
         console.log(item)
         const clone = originalNode.cloneNode(true);
-        const image_path_process = "../../../../images/scanner/" + item.scannerID + "/" + item.path_process.replace("./scanner/", "");
-        const image_path_results = "../../../../images/scanner/" + item.scannerID + "/" + item.path_results.replace("./scanner/", "");
+        const image_path_process = "../../../../images/scanner/" + item.scannerID + "/"+item.who+"/" + item.path_process.replace("./scanner/", "");
+        const image_path_results = "../../../../images/scanner/" + item.scannerID + "/"+item.who+"/" + item.path_results.replace("./scanner/", "");
         clone.id = "item-" + index;
         // PLACE CNPJ E NFE SE LOCALIZAR
         const cnpj = clone.querySelector("#cnpj");
-        cnpj.value = item.identify.cnpj;
+        cnpj.value = item.identify.cnpj ? item.identify.cnpj : "";
         cnpj.id = cnpj.id + "-" + index;
         cnpj.name = cnpj.id;
         const nfe = clone.querySelector("#nfe");
-        nfe.value = item.identify.nfe;
+        nfe.value = item.identify.nfe?.replace(/\D/g,'');
         nfe.id = nfe.id + "-" + index;
         nfe.name = nfe.id;
         const hidden = clone.querySelector("#oculta");
@@ -31,7 +31,7 @@ const showTesseractItems = () => {
         hidden.name = hidden.id;
         const hiddenData = {
             scanner: item.scannerID,
-            image: item.image,
+            image: item.images,
             user: item.who
         };
         hidden.value = JSON.stringify(hiddenData);
@@ -40,11 +40,10 @@ const showTesseractItems = () => {
         imagesArea.querySelector("#cloneImage").id = "sample-canhotos-" + index;
         imagesArea.querySelector("#cloneImage2").id = "sample-nfe-" + index;
         // PLACE IMAGES
-        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("src", image_path_process + "/" + item.image);
-        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("alt", item.image);
-        imagesArea.querySelector("#sample-canhotos-" + index + "").style.transform = "rotate(180deg)";
-        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("src", image_path_results + "/" + item.image);
-        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("alt", item.image);
+        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("src", image_path_process + "/" + item.images);
+        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("alt", item.images);
+        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("src", image_path_results + "/" + item.images);
+        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("alt", item.images);
         itemPlacer.appendChild(clone);
         index++;
     }
