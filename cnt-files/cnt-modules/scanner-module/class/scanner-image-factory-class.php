@@ -217,16 +217,17 @@ class Scanner_image_factory
     {
         /*SCANNER IMAGE*/
         $factory = new Scanner_image_factory();
-        $factory->build = $this->build;
         $factory->image = $this->image;
+        $factory->build = $this->build;
+        $factory->build["crop_index"] = 5;
         /*SCANNER FACTORY*/
         $get_factory = new Scanner_factory();
         $get_factory->build = $factory->build;
         $get_factory->image = $factory->image;
         /*CHANGE CROP PATTERNS*/
-        $get_factory->build["crop_index"] = 5;
         $crops = $get_factory->factory_crop_dimensions();
         $get_factory->build["crop"] = $crops;
+        $factory->build = $get_factory->build;
         /*CREATE NEW SAMPLE*/
         $get_factory->factory_identify_sample_init(true);
         /*READ TESSERACT*/
@@ -267,8 +268,7 @@ class Scanner_image_factory
             $factory->build["identify"]["cnpj"] = $cnpj;
             $nfe = $factory->images_factory_empresa_nfe();
             $factory->build["identify"]["nfe"] = $nfe;
-            echo json_encode($factory->build);
-            //return $factory->images_factory_identify_tesseract($nArray);
+            return $factory->build;
         } else {
             $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
             $get_factory->build["specials"]["active"] = true;
@@ -288,11 +288,12 @@ class Scanner_image_factory
         }
     }
     /*GET CNPJ*/
-    public function images_factory_empresa_cnpj()
+    public function images_factory_empresa_cnpj($try = 0)
     {
         $factory = new Scanner_image_factory();
-        $factory->build = $this->build;
         $factory->image = $this->image;
+        $factory->build = $this->build;
+        if ($try == 0) $factory->build["gamma_index"] = 0.200;
         /*SCANNER FACTORY*/
         $get_factory = new Scanner_factory();
         $get_factory->build = $factory->build;
@@ -301,14 +302,27 @@ class Scanner_image_factory
         $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
         if (count(array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $tess_read)) > 0) {
             return SALES_EQUIP["CNPJ"];
+        } else {
+            $try++;
+            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
+            $get_factory->build["specials"]["active"] = true;
+            $get_factory->build["specials"]["sharpen"] = true;
+            $get_factory->build["specials"]["sharpen_data"][0] = 1;
+            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
+            /*UPDATE BUILD*/
+            $factory->build = $get_factory->build;
+            /*FINALIZA*/
+            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_empresa_cnpj($try);
+            if ($factory->build["gamma_index"] > 1.600) return "";
         }
     }
     /*GET NFE*/
-    public function images_factory_empresa_nfe()
+    public function images_factory_empresa_nfe($try = 0)
     {
         $factory = new Scanner_image_factory();
         $factory->build = $this->build;
         $factory->image = $this->image;
+        if ($try == 0) $factory->build["gamma_index"] = 0.200;
         /*SCANNER FACTORY*/
         $get_factory = new Scanner_factory();
         $get_factory->build = $factory->build;
@@ -325,6 +339,7 @@ class Scanner_image_factory
         if (strlen($reads_nfe) > 4) {
             return $reads_nfe;
         } else {
+            $try++;
             $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
             $get_factory->build["specials"]["active"] = true;
             $get_factory->build["specials"]["sharpen"] = true;
@@ -333,7 +348,7 @@ class Scanner_image_factory
             /*UPDATE BUILD*/
             $factory->build = $get_factory->build;
             /*FINALIZA*/
-            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_empresa_nfe();
+            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_empresa_nfe($try);
             if ($factory->build["gamma_index"] > 1.600) return "";
         }
     }
@@ -369,8 +384,6 @@ class Scanner_image_factory
         if (!is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = $tessa["nfe"];
         return $identify->build;
     }
-
-
     /*------------------------------------------------>CERTIFICAR<-------------------------------------------------------*/
     public function images_factory_certify()
     {
