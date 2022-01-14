@@ -40,7 +40,9 @@ if (is_null($barCode)) {
     $builds = $process->compound_scanner();
     $process->build = $builds;
     $process->swit = "tesseract-identify-steps";
-    //$builds = $process->compound_scanner();
+    $builds = $process->compound_scanner();
+    echo json_encode($builds);
+    //$process->build = $builds;
 }
 /*GET IDENTIFY & READS -> ZBAR*/
 if (!is_null($barCode)) {
@@ -52,5 +54,5 @@ if (!is_null($barCode)) {
     $process->swit = "zbar-identify";
     $builds = $process->compound_scanner();
 }
-$process->build = $builds;
-echo json_encode($process->build);
+//$process->build = $builds;
+//echo json_encode($process->build);

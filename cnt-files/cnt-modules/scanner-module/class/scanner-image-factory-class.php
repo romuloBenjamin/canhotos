@@ -248,7 +248,7 @@ class Scanner_image_factory
         return $factory->build;
     }
     /*IDENT STEPS*/
-    public function images_factory_tesseract_steps()
+    public function images_factory_tesseract_steps($try = 0)
     {
         $factory = new Scanner_image_factory();
         $factory->build = $this->build;
@@ -258,7 +258,9 @@ class Scanner_image_factory
         $get_factory->build = $factory->build;
         $get_factory->image = $factory->image;
         /*GET TESSERACT READS*/
-        $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
+        if (empty($this->build["tesseract_read"])) $tess_read = array();
+        if (is_null($this->build["tesseract_read"])) $tess_read = array();
+        if (!empty($this->build["tesseract_read"])) $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
         /*INTERSECT TESSERACT*/
         if (count(array_intersect(SALES_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
             $builds = $factory->images_factory_identify_init();
@@ -270,21 +272,22 @@ class Scanner_image_factory
             $factory->build["identify"]["nfe"] = $nfe;
             return $factory->build;
         } else {
-            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
+            $try++;
+            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
             $get_factory->build["specials"]["active"] = true;
             $get_factory->build["specials"]["sharpen"] = true;
             $get_factory->build["specials"]["sharpen_data"][0] = 1;
-            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
+            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .030;
             /*RECREATE SAMPLE AND READ*/
             $get_factory->factory_identify_sample_init(true);
             $reads_raws = $get_factory->factory_read_tesseract();
             /*UPDATE TESSERACT READS*/
-            $get_factory->build["tesseract_read"] = $reads_raws;
+            $get_factory->build["tesseract_read"] = $reads_raws["data"];
             /*UPDATE BUILD*/
             $factory->build = $get_factory->build;
             /*FINALIZA*/
-            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_tesseract_steps();
-            if ($factory->build["gamma_index"] > 1.600) return "";
+            if ($try < 10) return $factory->images_factory_tesseract_steps($try);
+            if ($try >= 10) return $factory->build;
         }
     }
     /*GET CNPJ*/
@@ -299,21 +302,28 @@ class Scanner_image_factory
         $get_factory->build = $factory->build;
         $get_factory->image = $factory->image;
         /*IDENTIFICAR EMPRESA*/
-        $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
+        if (empty($this->build["tesseract_read"])) $tess_read = array();
+        if (is_null($this->build["tesseract_read"])) $tess_read = array();
+        if (!empty($this->build["tesseract_read"])) $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
         if (count(array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $tess_read)) > 0) {
             return SALES_EQUIP["CNPJ"];
         } else {
             $try++;
-            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
+            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
             $get_factory->build["specials"]["active"] = true;
             $get_factory->build["specials"]["sharpen"] = true;
             $get_factory->build["specials"]["sharpen_data"][0] = 1;
-            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
+            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .030;
+            /*RECREATE SAMPLE AND READ*/
+            $get_factory->factory_identify_sample_init(true);
+            $reads_raws = $get_factory->factory_read_tesseract();
+            /*UPDATE TESSERACT READS*/
+            $get_factory->build["tesseract_read"] = $reads_raws["data"];
             /*UPDATE BUILD*/
             $factory->build = $get_factory->build;
             /*FINALIZA*/
-            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_empresa_cnpj($try);
-            if ($factory->build["gamma_index"] > 1.600) return "";
+            if ($try < 10) return $factory->images_factory_empresa_cnpj($try);
+            if ($try >= 10) return "";
         }
     }
     /*GET NFE*/
@@ -340,16 +350,21 @@ class Scanner_image_factory
             return $reads_nfe;
         } else {
             $try++;
-            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
+            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
             $get_factory->build["specials"]["active"] = true;
             $get_factory->build["specials"]["sharpen"] = true;
             $get_factory->build["specials"]["sharpen_data"][0] = 1;
-            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
+            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .030;
+            /*RECREATE SAMPLE AND READ*/
+            $get_factory->factory_identify_sample_init(true);
+            $reads_raws = $get_factory->factory_read_tesseract();
+            /*UPDATE TESSERACT READS*/
+            $get_factory->build["tesseract_read"] = $reads_raws["data"];
             /*UPDATE BUILD*/
             $factory->build = $get_factory->build;
             /*FINALIZA*/
-            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_empresa_nfe($try);
-            if ($factory->build["gamma_index"] > 1.600) return "";
+            if ($try < 10) return $factory->images_factory_empresa_nfe($try);
+            if ($try >= 10) return "";
         }
     }
     /*--------------------------------------------->IDENTIFICAÇÃO DO CANHOTO<---------------------------------------------*/
@@ -361,27 +376,6 @@ class Scanner_image_factory
         $identify->build = $this->build;
         $identify->build["identify"]["cnpj"] = substr($barCode, 0, 14);
         $identify->build["identify"]["nfe"] = substr($barCode, 14, strlen($barCode));
-        return $identify->build;
-    }
-    /*SET IDENTIFY PARA TESSERACT*/
-    public function images_factory_identify_tesseract($tessa)
-    {
-        $identify = new Scanner_image_factory();
-        $identify->image = $this->image;
-        $identify->build = $this->build;
-        $identify->build["identify"] = array();
-        $identify->build["identify"]["origin"] = "TESSERACT";
-        if (is_null($tessa["cnpj"])) $identify->build["identify"]["cnpj"] = "";
-        if (is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = "";
-
-        if ((!is_null($tessa["cnpj"])) or (!is_null($tessa["nfe"]))) {
-            $identify->build["identify"]["raw"] = $tessa["cnpj"] . $tessa["nfe"];
-        } else {
-            $identify->build["identify"]["raw"] = "";
-        }
-
-        if (!is_null($tessa["cnpj"])) $identify->build["identify"]["cnpj"] = $tessa["cnpj"];
-        if (!is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = $tessa["nfe"];
         return $identify->build;
     }
     /*------------------------------------------------>CERTIFICAR<-------------------------------------------------------*/
@@ -447,4 +441,29 @@ class Scanner_image_factory
             //return $saveFactory->images_factory_certify();
         }
     }
+
+
+    /*DEPRECATED*/
+    /*SET IDENTIFY PARA TESSERACT*/
+    public function images_factory_identify_tesseract($tessa)
+    {
+        $identify = new Scanner_image_factory();
+        $identify->image = $this->image;
+        $identify->build = $this->build;
+        $identify->build["identify"] = array();
+        $identify->build["identify"]["origin"] = "TESSERACT";
+        if (is_null($tessa["cnpj"])) $identify->build["identify"]["cnpj"] = "";
+        if (is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = "";
+
+        if ((!is_null($tessa["cnpj"])) or (!is_null($tessa["nfe"]))) {
+            $identify->build["identify"]["raw"] = $tessa["cnpj"] . $tessa["nfe"];
+        } else {
+            $identify->build["identify"]["raw"] = "";
+        }
+
+        if (!is_null($tessa["cnpj"])) $identify->build["identify"]["cnpj"] = $tessa["cnpj"];
+        if (!is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = $tessa["nfe"];
+        return $identify->build;
+    }
+    /*DEPRECATED*/
 }

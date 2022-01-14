@@ -206,15 +206,25 @@ async function identify() {
                 console.log("Maximum execution time reached!");
             }
             showMessage("Identificando... " + (index + 1) + "/" + scannedItems.length);
-            showExtraMessage(JSON.stringify(data));
-            if(data.isTeresseract) {
+            if(data.identify.origin !== "ZBAR") {
                 tesseractData.push(data);
+                showExtraMessage("Código de barras não identificado. Adicionando para confirmação de dados posterior.");
             } else {
-                const logResult = await axios.post("./cnt-files/cnt-modules/scanner-module/core/add-to-log-file-core.php", data);
+                const dataToSave = {
+                    nfe: data.identify.nfe,
+                    cnpj: data.identify.cnpj,
+                    username: data.who,
+                    scanner: data.scannerID,
+                    date: getDate(),
+                    time: getTime()
+                }
+                showExtraMessage("Código de barras lido com sucesso!");
+                const logResult = await axios.post("./cnt-files/cnt-modules/scanner-module/core/add-to-log-file-core.php", dataToSave);
                 //console.log(logResult.data);
             }
         }
         showMessage("Identificação terminada.");
+        showExtraMessage("");
         if(tesseractData.length > 0) {
             localStorage.setItem("tesseract-data", JSON.stringify(tesseractData));
             openPopUp();
