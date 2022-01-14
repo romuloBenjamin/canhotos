@@ -422,48 +422,70 @@ class Scanner_image_factory
             $get_factory->factory_erase_link();
         }
     }
+    public function images_factory_certify_save()
+    {
+        /*CURRENT CLASS*/
+        $identify = new Scanner_image_factory();
+        $identify->image = $this->image;
+        $identify->build = $this->build;
+        //$identify->build["path_local"] = "../../../../../";
+        /*LER COD BARRAS*/
+        $get_factory = new Scanner_factory();
+        $get_factory->image = $identify->image;
+        $get_factory->build = $identify->build;
+        /*OPEN CERTIFICADOS*/
+        $certificado_path = $this->build["path_local"] . "cnt-files/cnt-assets/cert/" . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".pfx";
+        $certificado_file = file_get_contents($certificado_path);
+        openssl_pkcs12_read($certificado_file, $certificado, base64_decode(CERTIFICADOS));
+        $cert = $certificado["cert"];
+        $pkey = $certificado["pkey"];
+        /*CRIAR .CER*/
+        $path_cert = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]) . "cert/";
+        file_put_contents(
+            $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt",
+            $certificado['pkey'] . $certificado['cert']
+        );
+        /*ADD .CRT TO BUILD*/
+        $get_factory->build["crt"]["path"] = $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt";
+        $CertPriv = openssl_x509_parse(openssl_x509_read($cert));
+        $get_factory->build["crt"]["text"] = $CertPriv;
+        /*TO ZBAR*/
+        if ($this->build["identify"]["origin"] == "ZBAR") {
+            $get_factory->factory_turn_image_to_pdf();
+            $get_factory->factory_erase_link();
+            return $get_factory->build;
+        }
+        /*TO TESSERACT*/
+        if ($this->build["identify"]["origin"] == "TESSERACT") {
+            $identify->build = $get_factory->build;
+            return $identify->build;
+        }
+        /*TO SAVE TESSERACT*/
+        if ($this->build["identify"]["origin"] == "SAVE-TESSERACT") {
+            $get_factory->factory_turn_image_to_pdf();
+            $get_factory->factory_erase_link();
+            return json_encode($get_factory->build);
+        }
+    }
     /*SALVAR TESSERACT*/
     public function images_factory_tesseract_save()
     {
+        $oculta = $this->image["save"];
+        /*SAVE FACTORY*/
         $saveFactory = new Scanner_image_factory();
         $saveFactory->build = $this->build;
         $saveFactory->build["identify"] = array();
         $saveFactory->build["identify"]["origin"] = "SAVE-TESSERACT";
-        for ($i = 0; $i < count($this->image); $i++) {
-            $identy = $this->image[$i];
-            $dados_ocultos = json_decode($identy["oculta"], true);
-            $saveFactory->image = $identy;
+        /*SAVE IMAGES*/
+        for ($i = 0; $i < count($oculta); $i++) {
+            $identy = $oculta[$i];
+            $saveFactory->image = $identy["image"];
             $saveFactory->build["identify"]["cnpj"] = $identy["cnpj"];
             $saveFactory->build["identify"]["nfe"] = $identy["nfe"];
-            $saveFactory->build["scannerID"] = $dados_ocultos["scanner"];
-            $saveFactory->image = $dados_ocultos["image"];
-            return json_encode($saveFactory);
-            //return $saveFactory->images_factory_certify();
+            $saveFactory->build["scannerID"] = $identy["scanner"];
+            $saveFactory->build["who"] = $identy["username"];
+            $saveFactory->images_factory_certify_save();
         }
+        return;
     }
-
-
-    /*DEPRECATED*/
-    /*SET IDENTIFY PARA TESSERACT*/
-    public function images_factory_identify_tesseract($tessa)
-    {
-        $identify = new Scanner_image_factory();
-        $identify->image = $this->image;
-        $identify->build = $this->build;
-        $identify->build["identify"] = array();
-        $identify->build["identify"]["origin"] = "TESSERACT";
-        if (is_null($tessa["cnpj"])) $identify->build["identify"]["cnpj"] = "";
-        if (is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = "";
-
-        if ((!is_null($tessa["cnpj"])) or (!is_null($tessa["nfe"]))) {
-            $identify->build["identify"]["raw"] = $tessa["cnpj"] . $tessa["nfe"];
-        } else {
-            $identify->build["identify"]["raw"] = "";
-        }
-
-        if (!is_null($tessa["cnpj"])) $identify->build["identify"]["cnpj"] = $tessa["cnpj"];
-        if (!is_null($tessa["nfe"])) $identify->build["identify"]["nfe"] = $tessa["nfe"];
-        return $identify->build;
-    }
-    /*DEPRECATED*/
 }

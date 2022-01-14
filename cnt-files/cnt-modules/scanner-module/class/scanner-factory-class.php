@@ -280,6 +280,7 @@ class Scanner_factory
     public function factory_turn_image_to_pdf()
     {
         $path_to_rede = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]) . "\\" . $this->build["scannerID"] . "\\" . $this->build["who"];
+        $path_to_year_date = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]);
         $path_to_crt = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]);
         $path_tmp = $this->build["path_local"] . "cnt-files/images/scanner/" . $this->build["scannerID"] . "/" . $this->build["who"] . "/results";
         /*IMAGE DATA & PATH*/
@@ -287,9 +288,9 @@ class Scanner_factory
         $path_open_file = $path_to_rede . str_replace("./scanner/", "\\", $this->build["path_process"]);
         $format_and_extensions = explode(".", $this->image);
         /*CRIATE FOLDER IF NOT EXIST*/
-        if (!is_dir($path_save_file . "/" . date('Y'))) mkdir($path_save_file . "/" . date('Y'), 0777);
-        if (!is_dir($path_save_file . "/" . date('Y') . "/" . date('m'))) mkdir($path_save_file . "/" . date('Y') . "/" . date('m'), 0777);
-        if (!is_dir($path_save_file . "/" . date('Y') . "/" . date('m') . "/" . date('d'))) mkdir($path_save_file . "/" . date('Y') . "/" . date('m') . "/" . date('d'), 0777);
+        if (!is_dir($path_to_year_date . "/" . date('Y'))) mkdir($path_to_year_date . "/" . date('Y'), 0777);
+        if (!is_dir($path_to_year_date . "/" . date('Y') . "/" . date('m'))) mkdir($path_to_year_date . "/" . date('Y') . "/" . date('m'), 0777);
+        if (!is_dir($path_to_year_date . "/" . date('Y') . "/" . date('m') . "/" . date('d'))) mkdir($path_to_year_date . "/" . date('Y') . "/" . date('m') . "/" . date('d'), 0777);
         if (!is_dir($path_tmp)) mkdir($path_tmp, "0777");
         /*CREATE TMP*/
         $file_image = file_get_contents($path_open_file . "\\" . $this->image);
@@ -340,9 +341,9 @@ class Scanner_factory
             $fileName = str_replace("\"", "", $this->build["identify"]["cnpj"]) . str_pad(str_replace("\"", "", $this->build["identify"]["nfe"]), 9, "0", STR_PAD_LEFT);
             $tcpdf->Output($path_tmp . "/" . $fileName . ".pdf", "F");
             $server = file_get_contents($path_tmp . "/" . $fileName . ".pdf");
-            $path_save_file = $path_save_file . "/" . date('Y') . "/" . date('m') . "/" . date('d');
-            if (file_exists($path_save_file . "\\" . $fileName . ".pdf")) file_put_contents($path_save_file . "\\" . $fileName . ".pdf", "");
-            file_put_contents($path_save_file . "\\" . $fileName . ".pdf", $server);
+            $path_to_year_date = $path_to_year_date . "/" . date('Y') . "/" . date('m') . "/" . date('d');
+            if (file_exists($path_to_year_date . "\\" . $fileName . ".pdf")) file_put_contents($path_to_year_date . "\\" . $fileName . ".pdf", "");
+            file_put_contents($path_to_year_date . "\\" . $fileName . ".pdf", $server);
             return;
         } catch (\Throwable $th) {
             return $th;

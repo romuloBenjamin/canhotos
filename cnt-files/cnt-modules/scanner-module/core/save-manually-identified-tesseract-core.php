@@ -17,5 +17,5 @@ require_once('../../../../vendor/autoload.php');
 $factory = new Scanner_compound();
 $factory->swit = "save-tesseract-files";
 $_POST = json_decode(file_get_contents('php://input'), true);
-$factory->entry = $_POST["save"];
+$factory->entry = $_POST;
 echo $factory->compound_scanner();

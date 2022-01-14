@@ -14,8 +14,8 @@ const showTesseractItems = () => {
     for(let item of data) {
         console.log(item)
         const clone = originalNode.cloneNode(true);
-        const image_path_process = "../../../../images/scanner/" + item.scannerID + "/"+item.who+"/" + item.path_process.replace("./scanner/", "");
-        const image_path_results = "../../../../images/scanner/" + item.scannerID + "/"+item.who+"/" + item.path_results.replace("./scanner/", "");
+        const image_path_process = "../../../../images/scanner/" + item.scannerID + "/" + item.who + "/" + item.path_process.replace("./scanner/", "");
+        const image_path_results = "../../../../images/scanner/" + item.scannerID + "/" + item.who + "/" + item.path_results.replace("./scanner/", "");
         clone.id = "item-" + index;
         // PLACE CNPJ E NFE SE LOCALIZAR
         const cnpj = clone.querySelector("#cnpj");
@@ -24,6 +24,7 @@ const showTesseractItems = () => {
         cnpj.name = cnpj.id;
         const nfe = clone.querySelector("#nfe");
         nfe.value = item.identify.nfe?.replace(/\D/g,'');
+        console.log(nfe.value);
         nfe.id = nfe.id + "-" + index;
         nfe.name = nfe.id;
         const hidden = clone.querySelector("#oculta");
@@ -151,7 +152,8 @@ async function salvarTessa(e) {
             username: hiddenData.user,
             scanner: hiddenData.scanner,
             date: getDate(),
-            time: getTime()
+            time: getTime(),
+            image: hiddenData.image
         }
         // Add the data to log
         const addToLog = await axios.post("../../core/add-to-log-file-core.php", data[i]);
