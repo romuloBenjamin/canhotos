@@ -55,6 +55,10 @@ class Scanner_compound
                 $compound->build = $this->build;
                 return $compound->compound_factory_images();
                 break;
+            case 'tesseract-identify-steps':
+                $compound->build = $this->build;
+                return $compound->compound_factory_images();
+                break;
             case 'verificar-certificados-expirados':
                 $compound->build = $this->build;
                 return $compound->compound_factory();

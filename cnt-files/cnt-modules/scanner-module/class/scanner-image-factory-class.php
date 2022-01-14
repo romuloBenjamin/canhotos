@@ -89,11 +89,11 @@ class Scanner_image_factory
                 $factory->build = $this->build;
                 return $factory->images_factory_tesseract_init();
                 break;
-            case 'tesseract-ident-steps':
+            case 'tesseract-identify-steps':
                 /*SOMENTE PARA TESSERACT IDENT*/
                 $factory->build = $this->build;
                 $factory->image = $this->image;
-                $ident = $factory->tesseract_ident_steps();
+                $ident = $factory->images_factory_tesseract_steps();
                 return $ident;
                 break;
             case 'start-to-certify':
@@ -158,7 +158,6 @@ class Scanner_image_factory
         }
     }
     /*--------------------------------------------->IDENTIFY<---------------------------------------------*/
-    /*ZBAR IDENTIFY*/
     public function images_factory_identify_init()
     {
         $identify = new Scanner_image_factory();
@@ -173,7 +172,7 @@ class Scanner_image_factory
         /*CONF ZBAR*/
         if (!empty($factory->build["zbar_read"])) {
             $identify->build["identify"]["origin"] = "ZBAR";
-            $identify->build["identify"]["cnpj"] = substr($factory->build["zbar_read"], 0, 14);
+            $identify->build["identify"]["cnpj"] = '"' . substr($factory->build["zbar_read"], 0, 14) . '"';
             $identify->build["identify"]["nfe"] = substr($factory->build["zbar_read"], 14, strlen($factory->build["zbar_read"]));
             return $identify->build;
         }
@@ -247,115 +246,30 @@ class Scanner_image_factory
         $factory->build["tesseract_read"] = $tessa["data"];
         return $factory->build;
     }
-
-
-
-    /*DEPRECATED*/
-    /*INIT IDENTIFY*/
-    public function images_factory_init_identify()
+    /*IDENT STEPS*/
+    public function images_factory_tesseract_steps()
     {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*SCAN FACTORY*/
-        $factory = new Scanner_factory();
-        $factory->image = $identify->image;
-        $factory->build = $identify->build;
-        /*INIT IDENTIFICACAO*/
-        $barCode = $factory->factory_read_barcode();
-        if (($barCode["code"] == 200) && ($barCode["text"] == "")) return $identify->images_factory_forca();
-        if ($barCode["code"] == 400) return $identify->images_factory_forca();
-        return $identify->images_factory_identify($barCode);
-    }
-    /*IDENTIFY NFE*/
-    public function images_factory_get_nfe($forcar = 0)
-    {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*LER COD BARRAS*/
+        $factory = new Scanner_image_factory();
+        $factory->build = $this->build;
+        $factory->image = $this->image;
+        /*SCANNER FACTORY*/
         $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        $barCode = $get_factory->factory_read_barcode();
-        /*IF NÃO LOCALIZADO COD BARRAS*/
-        if ($barCode["code"] == 400) {
-            return $identify->images_factory_forca($forcar);
-        }
-        if ($barCode["code"] == 200) {
-            if ($barCode["text"] == "") return $identify->images_factory_forca($forcar);
-            return $identify->images_factory_identify($barCode);
-        }
-    }
-    /*DEPRECATED*/
-    /*---------------------------------------------->FORÇAR IDENTIFICAÇÃO<----------------------------------------------------*/
-    /*FORÇAR IDENTIFICATIONS*/
-    public function images_factory_forca($try = 0)
-    {
-        $forcar = new Scanner_image_factory();
-        $forcar->build = $this->build;
-        $forcar->image = $this->image;
-        /*LER COD BARRAS*/
-        $get_factory = new Scanner_factory();
-        $get_factory->image = $forcar->image;
-        $get_factory->build = $forcar->build;
-        /*IDENT VIA BARCODE*/
-        if ($try == 0) {
-            $try++;
-            $get_factory->factory_rotate(180, "path_process", "path_process");
-            $get_factory->factory_rotate(180, "path_process", "path_process", "local");
-            $get_factory->factory_identify_sample_init(true);
-            return $forcar->images_factory_get_nfe($try);
-        }
-        /*IDENT VIA TESSERACT*/
-        if ($try == 1) {
-            /*NEW IDENT CROP*/
-            $get_factory->build["crop_index"] = 5;
-            $forcar->build["crop_index"] = 5;
-            /*ROTATE AGAIN*/
-            $get_factory->factory_rotate(180, "path_process", "path_process");
-            $get_factory->factory_rotate(180, "path_process", "path_process", "local");
-            /*NEW DIMENSIONS*/
-            $dimensions = $get_factory->factory_crop_dimensions();
-            $get_factory->build["crop"] = $dimensions;
-            $forcar->build["crop"] = $dimensions;
-            /*NEW SAMPLE*/
-            $get_factory->factory_identify_sample_init(true);
-            //$reads_raws = $get_factory->factory_read_sample();
-            /*FILL TESSERACT READS*/
-            //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-            //$reads = explode(" ", $reads_raws);
-            //$get_factory->build["tesseract_read"] = $reads;
-            //$forcar->build["tesseract_read"] = $reads;
-            $forcar->build["identify"] = array("raw" => "TESSERACT");
-            return $forcar->build;
-        }
-    }
-    /*---------------------------------------------->LEITOR TESSERACT<----------------------------------------------*/
-    public function tesseract_ident_steps()
-    {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*LER COD BARRAS*/
-        $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        $nArray = array("raw" => "", "cnpj" => 0, "nfe" => 0);
-        if (array_intersect(SALES_PRIMARY_KNOW_NAMES, $get_factory->build["tesseract_read"])) {
-            $nArray["cnpj"] = $identify->getSalesCNPJ();
-            $nArray["nfe"] = $identify->getNFES();
-            return $identify->images_factory_identify_tesseract($nArray);
-        } else if (array_intersect(SANDALO_PRIMARY_KNOW_NAMES, $get_factory->build["tesseract_read"])) {
-            $nArray["cnpj"] = $identify->getSandaloCNPJ();
-            $nArray["nfe"] = $identify->getNFES();
-            return $identify->images_factory_identify_tesseract($nArray);
-        } else if (array_intersect(DONA_PRIMARY_KNOW_NAMES, $get_factory->build["tesseract_read"])) {
-            $nArray["cnpj"] = DONA_DESCARTAVEIS["CNPJ"];
-            $nArray["nfe"] = $identify->getNFES();
-            return $identify->images_factory_identify_tesseract($nArray);
+        $get_factory->build = $factory->build;
+        $get_factory->image = $factory->image;
+        /*GET TESSERACT READS*/
+        $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
+        /*INTERSECT TESSERACT*/
+        if (count(array_intersect(SALES_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
+            $builds = $factory->images_factory_identify_init();
+            $factory->build = $builds;
+            /*GET CNPJ DA EMPRESA*/
+            $cnpj = $factory->images_factory_empresa_cnpj();
+            $factory->build["identify"]["cnpj"] = $cnpj;
+            $nfe = $factory->images_factory_empresa_nfe();
+            $factory->build["identify"]["nfe"] = $nfe;
+            echo json_encode($factory->build);
+            //return $factory->images_factory_identify_tesseract($nArray);
         } else {
-            /*UPDATE PARAMETER TO READ*/
             $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
             $get_factory->build["specials"]["active"] = true;
             $get_factory->build["specials"]["sharpen"] = true;
@@ -363,145 +277,65 @@ class Scanner_image_factory
             $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
             /*RECREATE SAMPLE AND READ*/
             $get_factory->factory_identify_sample_init(true);
-            //$reads_raws = $get_factory->factory_read_sample();
+            $reads_raws = $get_factory->factory_read_tesseract();
             /*UPDATE TESSERACT READS*/
-            //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-            //$reads = explode(" ", $reads_raws);
-            //$get_factory->build["tesseract_read"] = $reads;
-            //$identify->build["tesseract_read"] = $reads;
+            $get_factory->build["tesseract_read"] = $reads_raws;
             /*UPDATE BUILD*/
-            $identify->build = $get_factory->build;
+            $factory->build = $get_factory->build;
             /*FINALIZA*/
-            if ($identify->build["gamma_index"] < 1.600) return $identify->tesseract_ident_steps();
-            if ($identify->build["gamma_index"] > 1.600) {
-                $identify->build["identify"] = array();
-                $identify->build["identify"]["origin"] = "FAILS-TESSERACT";
-                $identify->build["identify"]["raw"] = "";
-                $identify->build["identify"]["cnpj"] = "";
-                $identify->build["identify"]["nfe"] = "";
-                return $identify->build;
-            }
+            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_tesseract_steps();
+            if ($factory->build["gamma_index"] > 1.600) return "";
         }
     }
-    /*GET CNPJS -> SALES*/
-    public function getSalesCNPJ($try = 0)
+    /*GET CNPJ*/
+    public function images_factory_empresa_cnpj()
     {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*LER COD BARRAS*/
+        $factory = new Scanner_image_factory();
+        $factory->build = $this->build;
+        $factory->image = $this->image;
+        /*SCANNER FACTORY*/
         $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        /*RESTAURAR PARAMETER TO NEW SEARCH*/
-        if ($try == 0) {
-            $get_factory->build["gamma_index"] = .100;
-            $get_factory->build["specials"]["sharpen_data"][1] = .5;
-            $identify->build = $get_factory->build;
-        }
-        /*CONFIG PARAMETER TO SEARCH*/
-        if ($try != 0) $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .05;
-        $get_factory->build["specials"]["enhance"] = true;
-        $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
-        /*SET DIMENSIONS TO CROP*/
-        $get_factory->build["crop_index"] = 5;
-        $dimensions = $get_factory->factory_crop_dimensions();
-        $get_factory->build["crop"] = $dimensions;
-        $identify->build = $get_factory->build;
-        /*CREATE NEW SAMPLE*/
-        $get_factory->factory_identify_sample_init(true);
-        //$reads_raws = $get_factory->factory_read_sample();
-        /*UPDATE TESSERACT READS*/
-        //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-        //$reads = explode(" ", $reads_raws);
-        //$get_factory->build["tesseract_read"] = $reads;
-        //$identify->build["tesseract_read"] = $reads;
-        /*IDENTIFICAÇÃO DE DADOS*/
-        if (array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $identify->build["tesseract_read"])) {
+        $get_factory->build = $factory->build;
+        $get_factory->image = $factory->image;
+        /*IDENTIFICAR EMPRESA*/
+        $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
+        if (count(array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $tess_read)) > 0) {
             return SALES_EQUIP["CNPJ"];
-        } else {
-            $try++;
-            if ($get_factory->build["gamma_index"] < 1.600) return $identify->getSalesCNPJ($try);
         }
     }
-    /*GET CNPJS -> SANDALO*/
-    public function getSandaloCNPJ($try = 0)
+    /*GET NFE*/
+    public function images_factory_empresa_nfe()
     {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*LER COD BARRAS*/
+        $factory = new Scanner_image_factory();
+        $factory->build = $this->build;
+        $factory->image = $this->image;
+        /*SCANNER FACTORY*/
         $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        /*RESTAURAR PARAMETER TO NEW SEARCH*/
-        if ($try == 0) {
-            $get_factory->build["gamma_index"] = .100;
-            $get_factory->build["specials"]["sharpen_data"][1] = .5;
-            $identify->build = $get_factory->build;
-        }
-        /*CONFIG PARAMETER TO SEARCH*/
-        if ($try != 0) $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .05;
-        $get_factory->build["specials"]["enhance"] = true;
-        $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
-        /*SET DIMENSIONS TO CROP*/
-        $get_factory->build["crop_index"] = 5;
-        $dimensions = $get_factory->factory_crop_dimensions();
-        $get_factory->build["crop"] = $dimensions;
-        $identify->build = $get_factory->build;
-        /*CREATE NEW SAMPLE*/
-        $get_factory->factory_identify_sample_init(true);
-        //$reads_raws = $get_factory->factory_read_sample();
-        /*UPDATE TESSERACT READS*/
-        //$reads_raws = trim(str_replace(REMOVE_SPECIALS, "", $reads_raws["data"]));
-        //$reads = explode(" ", $reads_raws);
-        //$get_factory->build["tesseract_read"] = $reads;
-        //$identify->build["tesseract_read"] = $reads;
-        if (array_intersect(SANDALO_EQUIP["SECONDARY_KNOW_NAMES"], $identify->build["tesseract_read"])) {
-            return SANDALO_EQUIP["CNPJ"];
-        } else {
-            $try++;
-            if ($identify->build["gamma_index"] > 1.600) return $identify->getSandaloCNPJ($try);
-        }
-    }
-    /*IDENTIFY NFE*/
-    public function getNFES($try = 0)
-    {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*LER COD BARRAS*/
-        $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        /*RESTAURAR PARAMETER TO NEW SEARCH*/
-        if ($try == 0) {
-            $get_factory->build["gamma_index"] = .100;
-            $get_factory->build["specials"]["sharpen_data"][1] = .5;
-            $identify->build = $get_factory->build;
-        }
-        /*CONFIG PARAMETER TO SEARCH*/
-        if ($try != 0) $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .05;
-        $get_factory->build["specials"]["enhance"] = true;
-        $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
-        /*SET DIMENSIONS TO CROP*/
+        $get_factory->build = $factory->build;
+        $get_factory->image = $factory->image;
+        /*CREATE CROP & SAMPLE*/
         $get_factory->build["crop_index"] = 4;
-        $dimensions = $get_factory->factory_crop_dimensions();
-        $get_factory->build["crop"] = $dimensions;
-        $identify->build = $get_factory->build;
-        /*CREATE NEW SAMPLE*/
+        $crop = $get_factory->factory_crop_dimensions();
+        $get_factory->build["crop"] = $crop;
+        /*CREATE SAMPLE & READ*/
         $get_factory->factory_identify_sample_init(true);
-        //$reads_raws = $get_factory->factory_read_sample();
-        /*UPDATE TESSERACT READS*/
-        //$reads_raws = trim(str_replace(ONLY_NUMBERS, "", mb_strtolower($reads_raws["data"], "UTF-8")));
-        //$reads = strlen(str_replace(" ", "", $reads_raws));
-        /*IDENT NFE*/
-        //if ($reads >= 6) {
-        //return $reads;
-        //} else {
-        //$try++;
-        //return $identify->getNFES($try);
-        //}
+        $reads_nfe = $get_factory->factory_read_tesseract();
+        $reads_nfe = str_split(mb_strtolower($reads_nfe["data"], "UTF-8"));
+        $reads_nfe = implode("", str_replace(ONLY_NUMBERS, "", $reads_nfe));
+        if (strlen($reads_nfe) > 4) {
+            return $reads_nfe;
+        } else {
+            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .022;
+            $get_factory->build["specials"]["active"] = true;
+            $get_factory->build["specials"]["sharpen"] = true;
+            $get_factory->build["specials"]["sharpen_data"][0] = 1;
+            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .010;
+            /*UPDATE BUILD*/
+            $factory->build = $get_factory->build;
+            /*FINALIZA*/
+            if ($factory->build["gamma_index"] < 1.600) return $factory->images_factory_empresa_nfe();
+            if ($factory->build["gamma_index"] > 1.600) return "";
+        }
     }
     /*--------------------------------------------->IDENTIFICAÇÃO DO CANHOTO<---------------------------------------------*/
     /*SET IDENTIFY PARA BARCODE*/
@@ -549,7 +383,7 @@ class Scanner_image_factory
         $get_factory->image = $identify->image;
         $get_factory->build = $identify->build;
         /*OPEN CERTIFICADOS*/
-        $certificado_path = $this->build["path_local"] . "cnt-files/cnt-assets/cert/" . $this->build["identify"]["cnpj"] . ".pfx";
+        $certificado_path = $this->build["path_local"] . "cnt-files/cnt-assets/cert/" . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".pfx";
         $certificado_file = file_get_contents($certificado_path);
         openssl_pkcs12_read($certificado_file, $certificado, base64_decode(CERTIFICADOS));
         $cert = $certificado["cert"];
@@ -557,11 +391,11 @@ class Scanner_image_factory
         /*CRIAR .CER*/
         $path_cert = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]) . "cert/";
         file_put_contents(
-            $path_cert . $this->build["identify"]["cnpj"] . ".crt",
+            $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt",
             $certificado['pkey'] . $certificado['cert']
         );
         /*ADD .CRT TO BUILD*/
-        $get_factory->build["crt"]["path"] = $path_cert . $this->build["identify"]["cnpj"] . ".crt";
+        $get_factory->build["crt"]["path"] = $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt";
         $CertPriv = openssl_x509_parse(openssl_x509_read($cert));
         $get_factory->build["crt"]["text"] = $CertPriv;
         /*TO ZBAR*/

@@ -253,12 +253,6 @@ class Scanner_factory
         return;
     }
 
-    /*CREATE SAMPLE TO FORCE IDENTIFICATIONS*/
-    public function factory_identify_by_force()
-    {
-        var_dump($this);
-    }
-
     /*READ SAMPLE*/
     public function factory_read_tesseract()
     {
@@ -343,7 +337,7 @@ class Scanner_factory
             // *** set an empty signature appearance ***
             $tcpdf->addEmptySignatureAppearance(180, 80, 15, 15);
             //CERTIFICAR PDF
-            $fileName = $this->build["identify"]["cnpj"] . str_pad($this->build["identify"]["nfe"], 9, "0", STR_PAD_LEFT);
+            $fileName = str_replace("\"", "", $this->build["identify"]["cnpj"]) . str_pad(str_replace("\"", "", $this->build["identify"]["nfe"]), 9, "0", STR_PAD_LEFT);
             $tcpdf->Output($path_tmp . "/" . $fileName . ".pdf", "F");
             $server = file_get_contents($path_tmp . "/" . $fileName . ".pdf");
             $path_save_file = $path_save_file . "/" . date('Y') . "/" . date('m') . "/" . date('d');

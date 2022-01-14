@@ -198,6 +198,7 @@ async function identify() {
             dirData.file = item;
             const result = await axios.get("./cnt-files/cnt-modules/scanner-module/core/process-arquivo-escaneado-core.php?id=" + JSON.stringify(dirData));
             const data = result.data;
+            console.log(data);
             // Check for maximum execution time reached
             const stringfiedData = data.toString();
             //console.log(stringfiedData);
@@ -210,7 +211,7 @@ async function identify() {
                 tesseractData.push(data);
             } else {
                 const logResult = await axios.post("./cnt-files/cnt-modules/scanner-module/core/add-to-log-file-core.php", data);
-                console.log(logResult.data);
+                //console.log(logResult.data);
             }
         }
         showMessage("Identificação terminada.");
