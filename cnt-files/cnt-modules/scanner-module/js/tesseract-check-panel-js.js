@@ -1,6 +1,6 @@
 
-const placer = document.querySelector("#liberar-tessa");
-const tesseractForm = placer.querySelector("#formulario-tesseract");
+const placer = document.querySelector("#liberarTessa");
+const tesseractForm = placer.querySelector("#tesseractForm");
 const itemPlacer = tesseractForm.querySelector("ul");
 
 const showTesseractItems = () => {
@@ -8,11 +8,9 @@ const showTesseractItems = () => {
     const tesseractData = localStorage.getItem("tesseract-data");
     const data = JSON.parse(tesseractData);
     if(!data) return;
-    console.log(data);
     let index = 0;
     const originalNode = document.querySelector("#cloneNode");
     for(let item of data) {
-        console.log(item)
         const clone = originalNode.cloneNode(true);
         const image_path_process = "../../../../images/scanner/" + item.scannerID + "/" + item.who + "/" + item.path_process.replace("./scanner/", "");
         const image_path_results = "../../../../images/scanner/" + item.scannerID + "/" + item.who + "/" + item.path_results.replace("./scanner/", "");
@@ -24,7 +22,6 @@ const showTesseractItems = () => {
         cnpj.name = cnpj.id;
         const nfe = clone.querySelector("#nfe");
         nfe.value = item.identify.nfe?.replace(/\D/g,'');
-        console.log(nfe.value);
         nfe.id = nfe.id + "-" + index;
         nfe.name = nfe.id;
         const hidden = clone.querySelector("#oculta");
@@ -137,35 +134,31 @@ function magnify(imgID, zoom) {
 /*SALVAR TESSA*/
 async function salvarTessa(e) {
     // Get the number of items (groups of cnpj / nfe / etc)
-    console.log(itemPlacer.children.length)
     const numberOfItems = itemPlacer.children.length;
     if(numberOfItems <= 0) return;
     // If there's at least 1 item
     const data = [numberOfItems];
-    // Add each item to the array
-    let i = 0;
-    while(i < numberOfItems) {
-        const hiddenData = JSON.parse(tesseractForm.elements["oculta-" + i].value);
-        data[i] = {
-            nfe: tesseractForm.elements["nfe-" + i].value.toString(),
-            cnpj: tesseractForm.elements["cnpj-" + i].value.toString(),
-            username: hiddenData.user,
-            scanner: hiddenData.scanner,
-            date: getDate(),
-            time: getTime(),
-            image: hiddenData.image
-        }
-        // Add the data to log
-        const addToLog = await axios.post("../../core/add-to-log-file-core.php", data[i]);
-        console.log(addToLog.data);
-        i++;
-    }
-    console.log(data);
     try {
+        // Add each item to the array
+        let i = 0;
+        while(i < numberOfItems) {
+            const hiddenData = JSON.parse(tesseractForm.elements["oculta-" + i].value);
+            data[i] = {
+                nfe: tesseractForm.elements["nfe-" + i].value.toString(),
+                cnpj: tesseractForm.elements["cnpj-" + i].value.toString(),
+                username: hiddenData.user,
+                scanner: hiddenData.scanner,
+                date: getDate(),
+                time: getTime(),
+                image: hiddenData.image
+            }
+            // Add the data to log
+            const addToLog = await axios.post("../../core/add-to-log-file-core.php", data[i]);
+            i++;
+        }
         const result = await axios.post("../../core/save-manually-identified-tesseract-core.php", {
             save: data
         });
-        console.log(result);
     } catch(error) {
         console.log(error);
     }

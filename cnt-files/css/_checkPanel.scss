@@ -1,0 +1,45 @@
+#tesseract-check-panel,
+body,
+#liberarTessa {
+    width: 100%;
+    height: 100%;
+}
+#tesseract-check-panel {
+    hr {
+        width: 100%;
+    }
+    #liberarTessa {
+        display: flex;
+        flex-direction: column;
+    }
+    h3 {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    #tesseractForm {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    .image-data {
+        ul {
+            li {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+        .img-magnifier-container {
+            position: relative;
+        }
+        .img-magnifier-glass {
+            position: absolute;
+            border: 3px solid #000;
+            border-radius: 10%;
+            cursor: none;
+            /*Set the size of the magnifier glass:*/
+            width: 200px;
+            height: 200px;
+        }
+    }
+}
