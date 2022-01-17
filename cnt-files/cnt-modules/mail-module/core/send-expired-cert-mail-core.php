@@ -21,4 +21,4 @@ $loudConns->loudModules();
 /*CALL MODULE MAILER*/
 $mailer = new Mailer_module();
 $mailer->entry = json_encode($_POST["certificados"]);
-$vencidos = $mailer->mailer_compound();
+//$mailer->mailer_compound();

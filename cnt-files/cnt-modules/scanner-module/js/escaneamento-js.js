@@ -15,11 +15,13 @@ const addScannerButtons = async () => {
         // Remove special and normalize characters from the scanner name to use as ID and scan directory
         button.id = scanner.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().split(" ").join("-");
         scanner.scanDir = button.id;
-        button.classList.add("btn", "btn-secondary");
+        (scanner.address != "")? button.classList.add("btn", "btn-secondary") : button.classList.add("btn", "btn-warning")
         button.innerHTML = scanner.name;
         button.addEventListener("click", () => {
             scan(scanner);
         }, false);
+        /*ADD BTN RETRY A LISTA DE BOTOES AUTOMATICOS*/
+        if(scanner.address === "") button.addEventListener('click', retry);
         buttonContainer.appendChild(button);
     }
 }

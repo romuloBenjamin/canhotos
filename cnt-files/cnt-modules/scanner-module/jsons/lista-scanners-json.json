@@ -7,6 +7,10 @@
         {
             "name": "Scanner 2",
             "address": "172.16.2.213"
+        },
+        {
+            "name": "Identificar novamente",
+            "address": ""
         }
     ]
 }

@@ -13,8 +13,20 @@ section.section-module {
 }
 .container-page {
     width: $fullWidth - 20%;
+    min-height: 715px;
+    div.container-title {
+        width: $fullWidth;
+        h1 {
+            @include margins($top: 1.5rem, $left: 0, $bottom: 0.5rem);
+            @include fontFormater($size: 2rem);
+            @include textFormater($weight: 500);
+            text-align: left;
+            color: #3f547c;
+        }
+    }
     hr {
         width: $fullWidth;
+        @include margins($top: 0.5rem, $left: auto);
     }
     h2 {
         font-size: 22px;
@@ -30,38 +42,57 @@ section.section-module {
     .escaneamento {
         display: flex;
         margin-top: 1.5rem;
+        @include margins(1rem, $left: 0.5rem);
         align-items: center;
         flex-direction: column;
         width: $fullWidth;
+        //background-image: url(../images/scansnap/images.jpg);
+        background-size: 100% auto;
+        background-repeat: no-repeat;
     }
     .canhotos-content {
         display: flex;
-        margin-top: 1.5rem;
+        width: $fullWidth - 10%;
+        margin-top: 0.5rem;
         justify-content: center;
         align-items: center;
-        #buttonContainer {
-            display: flex;
-            justify-content: center;
-            button {
-                margin: 1rem;
-            }
+        hr {
+            width: $fullWidth;
+            @include margins($top: 0.5rem, $left: auto);
         }
-        .extra-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        span {
+            width: $fullWidth;
+            font-size: 1.2rem;
+            color: #3f547c;
+            @include paddings($top: 0, $left: 1rem);
+        }
+        .container-scanner-botoes {
+            width: $fullWidth;
+            #buttonContainer {
+                width: $fullWidth - 60%;
+                button {
+                    @include margins($top: 0.5rem, $left: 0.3rem);
+                }
+            }
+            /*EXTRA CONTAINER*/
+            .extra-container {
+                @include margins($top: 0.5rem, $left: 0.3rem);
+            }
             .message-box-container {
+                @include margins($top: 0.5rem, $left: 1rem);
+                @include paddings($top: 0.5rem, $left: 1rem);
+                width: $fullWidth - 40% !important;
                 background-color: rgb(0, 0, 0);
-                color: white;
-                margin: 1rem;
-                padding: 0.5rem 1rem;
-                font-weight: 600;
                 border: 5px solid rgb(80, 80, 80);
+                font-weight: 600;
+                color: white;
                 .message-box {
+                    width: $fullWidth;
                     text-align: center;
                 }
                 .spinner-border {
+                    width: 2.2rem;
+                    height: 2rem;
                     margin-right: 0.75rem;
                 }
             }

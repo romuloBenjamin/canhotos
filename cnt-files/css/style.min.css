@@ -213,10 +213,28 @@ section.section-module h1 {
 
 .container-page {
   width: 80%;
+  min-height: 715px;
+}
+
+.container-page div.container-title {
+  width: 100%;
+}
+
+.container-page div.container-title h1 {
+  margin: 1.5rem 0 0.5rem 0;
+  font-size: 2rem;
+  color: black;
+  text-align: left;
+  font-weight: 500;
+  text-decoration: none;
+  text-transform: none;
+  text-align: left;
+  color: #3f547c;
 }
 
 .container-page hr {
   width: 100%;
+  margin: 0.5rem auto 0.5rem auto;
 }
 
 .container-page h2 {
@@ -238,6 +256,7 @@ section.section-module h1 {
   display: -ms-flexbox;
   display: flex;
   margin-top: 1.5rem;
+  margin: 1rem 0.5rem 1rem 0.5rem;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
@@ -246,13 +265,16 @@ section.section-module h1 {
       -ms-flex-direction: column;
           flex-direction: column;
   width: 100%;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
 }
 
 .container-page .canhotos-content {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  margin-top: 1.5rem;
+  width: 90%;
+  margin-top: 0.5rem;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
@@ -261,49 +283,53 @@ section.section-module h1 {
           align-items: center;
 }
 
-.container-page .canhotos-content #buttonContainer {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+.container-page .canhotos-content hr {
+  width: 100%;
+  margin: 0.5rem auto 0.5rem auto;
 }
 
-.container-page .canhotos-content #buttonContainer button {
-  margin: 1rem;
+.container-page .canhotos-content span {
+  width: 100%;
+  font-size: 1.2rem;
+  color: #3f547c;
+  padding: 0 1rem 0 1rem;
 }
 
-.container-page .canhotos-content .extra-container {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+.container-page .canhotos-content .container-scanner-botoes {
+  width: 100%;
+  /*EXTRA CONTAINER*/
 }
 
-.container-page .canhotos-content .extra-container .message-box-container {
+.container-page .canhotos-content .container-scanner-botoes #buttonContainer {
+  width: 40%;
+}
+
+.container-page .canhotos-content .container-scanner-botoes #buttonContainer button {
+  margin: 0.5rem 0.3rem 0.5rem 0.3rem;
+}
+
+.container-page .canhotos-content .container-scanner-botoes .extra-container {
+  margin: 0.5rem 0.3rem 0.5rem 0.3rem;
+}
+
+.container-page .canhotos-content .container-scanner-botoes .message-box-container {
+  margin: 0.5rem 1rem 0.5rem 1rem;
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  width: 60% !important;
   background-color: black;
-  color: white;
-  margin: 1rem;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
   border: 5px solid #505050;
+  font-weight: 600;
+  color: white;
 }
 
-.container-page .canhotos-content .extra-container .message-box-container .message-box {
+.container-page .canhotos-content .container-scanner-botoes .message-box-container .message-box {
+  width: 100%;
   text-align: center;
 }
 
-.container-page .canhotos-content .extra-container .message-box-container .spinner-border {
+.container-page .canhotos-content .container-scanner-botoes .message-box-container .spinner-border {
+  width: 2.2rem;
+  height: 2rem;
   margin-right: 0.75rem;
 }
 
@@ -391,5 +417,67 @@ footer section div.coluna hr {
 footer section div.coluna ul li a {
   font-size: 0.8rem;
   color: white;
+}
+
+#tesseract-check-panel,
+body,
+#liberarTessa {
+  width: 100%;
+  height: 100%;
+}
+
+#tesseract-check-panel hr {
+  width: 100%;
+}
+
+#tesseract-check-panel #liberarTessa {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+#tesseract-check-panel h3 {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+#tesseract-check-panel #tesseractForm {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+#tesseract-check-panel .image-data ul li {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+#tesseract-check-panel .image-data .img-magnifier-container {
+  position: relative;
+}
+
+#tesseract-check-panel .image-data .img-magnifier-glass {
+  position: absolute;
+  border: 3px solid #000;
+  border-radius: 10%;
+  cursor: none;
+  /*Set the size of the magnifier glass:*/
+  width: 200px;
+  height: 200px;
 }
 /*# sourceMappingURL=style.min.css.map */
