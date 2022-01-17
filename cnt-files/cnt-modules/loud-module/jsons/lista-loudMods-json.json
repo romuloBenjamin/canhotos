@@ -49,6 +49,11 @@
             "module": "scanner",
             "folder":"class",
             "file": "scanner-tesseract"
+        },
+        {
+            "module": "mail",
+            "folder":"class",
+            "file": "mailer-module"
         }
     ]
 }

@@ -126,8 +126,18 @@ define(
         "SITE" => "DONA DESCARTAVE"
     )
 );
-
+/*ARRAY EMPRESAS*/
 define(
     "EMPRESAS",
     array(SALES_EQUIP, COMERCIAL_SANDALO, SALES_IND, SANDALO_EQUIP, DONA_DESCARTAVEIS)
+);
+/*-------------------------------------------->PHPMAILER<--------------------------------------------*/
+define(
+    "MAILER",
+    array(
+        "host" => "smtp.gmail.com",
+        "username" => "sales.cleaner.externo3@gmail.com",
+        "password" => "Q2xlQG5uZXJTYWxlcw==",
+        "port" => "465"
+    )
 );

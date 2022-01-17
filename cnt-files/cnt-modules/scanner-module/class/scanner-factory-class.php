@@ -353,7 +353,6 @@ class Scanner_factory
     public function factory_expired_digitals_signs()
     {
         $factory = new Scanner_factory();
-
         $nArray = array();
         $certificado_path = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]);
         for ($i = 0; $i < count($this->entry); $i++) {
@@ -373,14 +372,16 @@ class Scanner_factory
                                 "timer" => "Este certificado expira em " . $total_dias_para_expirar . " dias.",
                                 "expire" => $data_expired,
                                 "cnpj" => str_replace(".pfx", "", $this->entry[$i]),
-                                "empresa" => explode(":", $certPriv["subject"]["CN"])[0]
+                                "empresa" => explode(":", $certPriv["subject"]["CN"])[0],
+                                "dias_p_expirar" => $total_dias_para_expirar
                             );
                         } else {
                             $nArray[] = array(
                                 "timer" => "Certificado Expirado!",
                                 "expire" => $data_expired,
                                 "cnpj" => str_replace(".pfx", "", $this->entry[$i]),
-                                "empresa" => explode(":", $certPriv["subject"]["CN"])[0]
+                                "empresa" => explode(":", $certPriv["subject"]["CN"])[0],
+                                "dias_p_expirar" => 0
                             );
                         }
                     } else {
@@ -388,7 +389,8 @@ class Scanner_factory
                             "timer" => "Este Certificado vence este Mês!",
                             "expire" => $data_expired,
                             "cnpj" => str_replace(".pfx", "", $this->entry[$i]),
-                            "empresa" => explode(":", $certPriv["subject"]["CN"])[0]
+                            "empresa" => explode(":", $certPriv["subject"]["CN"])[0],
+                            "dias_p_expirar" => 30
                         );
                     }
                 } else {
@@ -396,7 +398,8 @@ class Scanner_factory
                         "timer" => "Certificado Expirado!",
                         "expire" => $data_expired,
                         "cnpj" => str_replace(".pfx", "", $this->entry[$i]),
-                        "empresa" => explode(":", $certPriv["subject"]["CN"])[0]
+                        "empresa" => explode(":", $certPriv["subject"]["CN"])[0],
+                        "dias_p_expirar" => 0
                     );
                 }
             }

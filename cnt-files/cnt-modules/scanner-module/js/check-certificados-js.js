@@ -1,5 +1,7 @@
+/*GET EXPIREDDIGITALSIGNS*/
 async function getExpiredDigitalSigns() {
     var certificados = await axios.get("./cnt-files/cnt-modules/scanner-module/core/listar-certificados-vencidos-core.php");    
+    //console.log(certificados.data);
     var placer_certificados = document.querySelector("div#alert-certificados");
     const certificadosExpirados = [];
     if(certificados.data.length > 1){
@@ -25,12 +27,8 @@ async function getExpiredDigitalSigns() {
     }    
 }
 getExpiredDigitalSigns();
-
 // Send an email with all expired certification
 const sendExpiredCertMail = async (certificados) => {
-    console.log("Atualizar certificado:");
-    const response = await axios.post("./cnt-files/cnt-modules/scanner-module/core/send-expired-cert-mail-core.php", {
-        certificados
-    });
+    const response = await axios.post("./cnt-files/cnt-modules/mail-module/core/send-expired-cert-mail-core.php", {certificados});
     console.log(response.data);
 }

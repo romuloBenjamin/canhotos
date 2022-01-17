@@ -13,11 +13,12 @@ $loudConns->loudConections();
 require "../../../../vendor/autoload.php";
 /*LOUD VENDOR*/
 
+$_POST = json_decode(file_get_contents('php://input'), true);
+echo json_encode($_POST["certificados"]);
+
 $loudConns->file = "loudMods";
 $loudConns->loudModules();
-$factory = new Scanner_compound();
-$factory->swit = "verificar-certificados-expirados";
-$factory->entry = array("10290557000168.pfx", "21823607000141.pfx", "30379727000192.pfx", "35765246000139.pfx");
-$vencidos = $factory->compound_scanner();
-/*RESULT CERTIFICADOS VENCIDOS*/
-echo $factory->compound_scanner();
+/*CALL MODULE MAILER*/
+$mailer = new Mailer_module();
+$mailer->entry = json_encode($_POST["certificados"]);
+$vencidos = $mailer->mailer_compound();

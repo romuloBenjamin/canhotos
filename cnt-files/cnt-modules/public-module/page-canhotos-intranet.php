@@ -2,6 +2,7 @@
     <div class="d-flex justify-content-center align-items-center w-25">
         <!-- THIS WILL LIST ALL CRYPTS THAT WILL EXPIRE IN 30D -->
         <div id="alert-certificados" class="d-none alert-certificados">
+            <h2>Certificados Disponíveis</h2>
             <ul class="list-group">
                 <li id="cloneNode" class="list-group-item"></li>
             </ul>
