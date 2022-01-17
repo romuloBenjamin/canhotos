@@ -290,7 +290,7 @@ section.section-module h1 {
           align-items: center;
 }
 
-.container-page .canhotos-content .extra-container .message-box {
+.container-page .canhotos-content .extra-container .message-box-container {
   background-color: black;
   color: white;
   margin: 1rem;
@@ -299,9 +299,12 @@ section.section-module h1 {
   border: 5px solid #505050;
 }
 
-.container-page .canhotos-content .extra-container .message-box .result {
-  margin-left: 0.75rem;
+.container-page .canhotos-content .extra-container .message-box-container .message-box {
   text-align: center;
+}
+
+.container-page .canhotos-content .extra-container .message-box-container .spinner-border {
+  margin-right: 0.75rem;
 }
 
 footer {
