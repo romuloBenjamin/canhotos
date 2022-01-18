@@ -107,7 +107,7 @@ class Scanner_factory
         for ($i = 0; $i < count($base_to_erase); $i++) {
             if (!in_array($base_to_erase[$i], $nArray)) {
                 if (is_dir($erase_dir . "/" . $base_to_erase[$i])) $erase->factory_erase_dir($erase_dir . "/" . $base_to_erase[$i]);
-                unlink($erase_dir . "/" . $base_to_erase[$i]);
+                if (is_link($erase_dir . "/" . $base_to_erase[$i])) unlink($erase_dir . "/" . $base_to_erase[$i]);
             }
         }
         return;
