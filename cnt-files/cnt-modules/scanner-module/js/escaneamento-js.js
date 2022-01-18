@@ -14,19 +14,28 @@ const addScannerButtons = async () => {
         const button = document.createElement("BUTTON");
         // Remove special and normalize characters from the scanner name to use as ID and scan directory
         button.id = scanner.name.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().split(" ").join("-");
-        scanner.scanDir = button.id;
         (scanner.address != "")? button.classList.add("btn", "btn-secondary") : button.classList.add("btn", "btn-warning")
         button.innerHTML = scanner.name;
-        button.addEventListener("click", () => {
-            scan(scanner);
-        }, false);
-        /*ADD BTN RETRY A LISTA DE BOTOES AUTOMATICOS*/
-        if(scanner.address === "") button.addEventListener('click', retry);
+        if(scanner.name === "Identificar novamente") {
+            button.addEventListener("click", (e) => { 
+                get_disabled_button();
+                identify();
+            });
+        } else {
+            scanner.scanDir = button.id;
+            button.addEventListener("click", () => { scan(scanner); }, false);
+        }
         buttonContainer.appendChild(button);
     }
 }
-
 addScannerButtons();
+
+/*ADD PROPERTY DISABLED*/
+async function get_disabled_button(type = true) {
+    var disab = document.querySelector("#identificar-novamente");
+    (type === true)? disab.setAttribute("disabled", true): disab.removeAttribute("disabled");
+    return;
+}
 
 // Get the current user name
 const getUsername = async () => {
@@ -71,11 +80,6 @@ const scan = async (scanner) => {
     hideSpinner();
 }
 
-/*REFAZER IDENTIFICAÇÃO DE CANHOTOS JA ESCANEADOS*/
-async function retry() {
-    identify();
-}
-
 // Get the json which contains the identify processes running at the moment
 async function getIdentifyProcessesRunningJson() {
     try {
@@ -98,7 +102,7 @@ async function updateIdentifyProcessesRunningJson(userInfo) {
 
 const openPopUp = () => {
     // Open the popup with the built data if there's any
-    const popup = window.open("./cnt-files/cnt-modules/scanner-module/template/view/view-alert-tesseract-template.html", "Confirmação de Canhotos", "width=800 height=500");
+    const popup = window.open("./cnt-files/cnt-modules/scanner-module/template/view/view-alert-tesseract-template.html", "Confirmação de Canhotos", "width=1000 height=700");
 }
 
 // Show the loading spinner
@@ -140,50 +144,60 @@ async function identify() {
             // Get json if it exists
             json = await getIdentifyProcessesRunningJson();
             userInfo = json[username];
-            // Loop through scanner names and check if the identify process was running previously for one of them
-            const keys = Object.keys(userInfo);
-            keys.forEach(key => {
-                if(userInfo[key]) scannerId = key;
-            });
-        }
-    } else {
-        // Get json if it exists
-        json = await getIdentifyProcessesRunningJson();
-        userInfo = json[username];
-
-        // Add the new process running for the chosen scanner in the current data
-        if(userInfo) {
-            userInfo[scannerId] = true;
-        } else {
-            // Or add it as new data
-            userInfo = {
-                [scannerId]: true
+            if(userInfo) {
+                // Loop through scanner names and check if the identify process was running previously for one of them
+                const keys = Object.keys(userInfo);
+                keys.forEach(key => {
+                    if(userInfo[key]) scannerId = key;
+                });
+                if(scannerId) showMessage("Processo prévio de identificação encontrado.");
             }
         }
-
-        // Update the json
-        await updateIdentifyProcessesRunningJson({
-            [username]: userInfo
-        });
     }
 
     if(!scannerId) {
+        get_disabled_button(false);
         showMessage("Nenhum processo prévio de identificação encontrado.");
         return;
     }
+
+    // Get json if it exists
+    json = await getIdentifyProcessesRunningJson();
+    userInfo = json[username];
+
+    // Add the new process running for the chosen scanner in the current data
+    if(userInfo) {
+        userInfo[scannerId] = true;
+    } else {
+        // Or add it as new data
+        userInfo = {
+            [scannerId]: true
+        }
+    }
+
+    // Update the json
+    await updateIdentifyProcessesRunningJson({
+        [username]: userInfo
+    });
+    console.log({[username]: userInfo})
     
     showMessage("Iniciando identificação...");
 
     // GET RESULTSET
     try {
-        showSpinner();
-        showMessage("Identificando canhotos. Aguarde...");
         const dirData = {
             scanner: scannerId,
             user: username
         };
         const response = await axios.get("./cnt-files/cnt-modules/scanner-module/core/listar-arquivos-escaneados-core.php?id=" + JSON.stringify(dirData));
         const scannedItems = response.data;
+        console.log(scannedItems);
+        if(!scannedItems) {
+            showMessage("Nenhum arquivo encontrado. Realize o processo escaneamento novamente.");
+            return;
+        }
+        showSpinner();
+        showMessage("Identificando canhotos. Aguarde...");
         const tesseractData = [];
         for(const [index, item] of scannedItems.entries()) {
             dirData.file = item;
@@ -224,10 +238,11 @@ async function identify() {
         // Remove the current scanner from the userinfo
         userInfo = json[username];
         if(userInfo) delete userInfo[scannerId];
-    
+
         await updateIdentifyProcessesRunningJson({
             [username]: userInfo
         });
+        get_disabled_button(false);
     } catch (error) {
         console.log(error);
         showMessage("Ocorreu uma falha.");

@@ -89,15 +89,7 @@ class Scanner_factory
     /*ERASE DIR*/
     public function factory_erase_dir($where = "path_results")
     {
-        $path_to_delete = $this->build["path_rede"] . str_replace("./", "", $this->build[$where]) . "\\" . $this->build["scannerID"];
-        /*GET FILES IN FOLDER TO DELETE*/
-        $transp = new Scanner_factory();
-        $transp->build = $this->build;
-        $files_to_remove = $transp->factory_scandir($where);
-        for ($i = 0; $i < count($files_to_remove); $i++) {
-            unlink($path_to_delete . "\\" . $files_to_remove[$i]);
-        }
-        return;
+        var_dump("not implemented");
     }
     /*REMOVE IMAGE FROM FOLDERS*/
     public function factory_erase_link()

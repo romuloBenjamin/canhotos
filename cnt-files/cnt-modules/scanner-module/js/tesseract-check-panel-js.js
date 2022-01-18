@@ -17,11 +17,15 @@ const showTesseractItems = () => {
         clone.id = "item-" + index;
         // PLACE CNPJ E NFE SE LOCALIZAR
         const cnpj = clone.querySelector("#cnpj");
-        cnpj.value = item.identify.cnpj ? item.identify.cnpj : "";
+        let cnpjValue = item.identify.cnpj ? item.identify.cnpj : "";
+        if(cnpjValue.length > 14) cnpjValue = cnpjValue.substring(0, 14);
+        cnpj.value = cnpjValue;
         cnpj.id = cnpj.id + "-" + index;
         cnpj.name = cnpj.id;
         const nfe = clone.querySelector("#nfe");
-        nfe.value = item.identify.nfe?.replace(/\D/g,'');
+        let nfeValue = item.identify.nfe?.replace(/\D/g,'') || "";
+        if(nfeValue.length > 9) nfeValue = nfeValue.substring(0, 9);
+        nfe.value = nfeValue;
         nfe.id = nfe.id + "-" + index;
         nfe.name = nfe.id;
         const hidden = clone.querySelector("#oculta");
@@ -34,7 +38,7 @@ const showTesseractItems = () => {
         };
         hidden.value = JSON.stringify(hiddenData);
         // PLACE IMAGES
-        const imagesArea = clone.querySelector("div.image-data > div.area-images");
+        const imagesArea = clone.querySelector("#imagesArea");
         imagesArea.querySelector("#cloneImage").id = "sample-canhotos-" + index;
         imagesArea.querySelector("#cloneImage2").id = "sample-nfe-" + index;
         // PLACE IMAGES
@@ -53,84 +57,22 @@ showTesseractItems();
 
 /*VIEW NFE*/
 async function ver_sample(e) {
-    var base = e.parentElement.parentElement;
-    var images = base.nextElementSibling;
+    e.classList.add("active");
+    var base = e.parentElement.parentElement.parentElement.parentElement;
+    if(e.id === "canhotoButton") base.querySelector("#nfeButton").classList.remove("active");
+    else base.querySelector("#canhotoButton").classList.remove("active");
+    var images = base.querySelector("#imagesArea");
     for (let index = 0; index < images.children.length; index++) {
         const data = images.children[index];
-        if(data.tagName === "IMG"){
-            if(data.classList.contains("d-none")) e.innerHTML = "VER CANHOTOS";
-            if(!data.classList.contains("d-none")) e.innerHTML = "VER NFE";
-            data.classList.toggle("d-none");
-        }
+        if(data.tagName === "IMG") data.classList.toggle("d-none");
     }
 }
+
 /*VIEW CANHOTOS*/
 async function ver_canhoto(e) {
-    var base = e.parentElement.parentElement;
-    var image = base.querySelectorAll("div.area-images > img.canhoto_view");
-    image.forEach(data => {
-        data.addEventListener("mousemove", magnify(data.id, 4));
-    });
-    base.addEventListener("mouseleave", (e) => {
-        var targ = e.target.querySelector("div.img-magnifier-glass");
-        if(targ != null) e.target.querySelector("div.img-magnifier-glass").remove();
-    });
+    const popup = window.open(e.src, "_blank");
 }
-/*MAGNIFY CANHOTO*/
-function magnify(imgID, zoom) {
-    var img, glass, w, h, bw;
-    img = document.getElementById(imgID);
-    /*create magnifier glass:*/
-    glass = document.createElement("DIV");
-    glass.setAttribute("class", "img-magnifier-glass");
-    /*insert magnifier glass:*/
-    img.parentElement.insertBefore(glass, img);
-    /*set background properties for the magnifier glass:*/
-    glass.style.backgroundImage = "url('" + img.src + "')";
-    glass.style.backgroundRepeat = "no-repeat";
-    glass.style.backgroundSize = (img.width * zoom) + "px " + (img.height * zoom) + "px";
-    bw = 3;
-    w = glass.offsetWidth / 2;
-    h = glass.offsetHeight / 2;
-    /*execute a function when someone moves the magnifier glass over the image:*/
-    glass.addEventListener("mousemove", moveMagnifier);
-    img.addEventListener("mousemove", moveMagnifier);
-    /*and also for touch screens:*/
-    glass.addEventListener("touchmove", moveMagnifier);
-    img.addEventListener("touchmove", moveMagnifier);
-    function moveMagnifier(e) {
-        var pos, x, y;
-        /*prevent any other actions that may occur when moving over the image*/
-        e.preventDefault();
-        /*get the cursor's x and y positions:*/
-        pos = getCursorPos(e);
-        x = pos.x;
-        y = pos.y;
-        /*prevent the magnifier glass from being positioned outside the image:*/
-        if (x > img.width - (w / zoom)) {x = img.width - (w / zoom);}
-        if (x < w / zoom) {x = w / zoom;}
-        if (y > img.height - (h / zoom)) {y = img.height - (h / zoom);}
-        if (y < h / zoom) {y = h / zoom;}
-        /*set the position of the magnifier glass:*/
-        glass.style.left = (x - w) + "px";
-        glass.style.top = (y - h) + "px";
-        /*display what the magnifier glass "sees":*/
-        glass.style.backgroundPosition = "-" + ((x * zoom) - w + bw) + "px -" + ((y * zoom) - h + bw) + "px";
-    }
-    function getCursorPos(e) {
-        var a, x = 1, y = 1;
-        e = e || window.event;
-        /*get the x and y positions of the image:*/
-        a = img.getBoundingClientRect();
-        /*calculate the cursor's x and y coordinates, relative to the image:*/
-        x = e.pageX - a.left;
-        y = e.pageY - a.top;
-        /*consider any page scrolling:*/
-        x = x - window.pageXOffset;
-        y = y - window.pageYOffset;
-        return {x : x, y : y};
-    }
-}
+
 /*SALVAR TESSA*/
 async function salvarTessa(e) {
     // Get the number of items (groups of cnpj / nfe / etc)
@@ -143,9 +85,12 @@ async function salvarTessa(e) {
         let i = 0;
         while(i < numberOfItems) {
             const hiddenData = JSON.parse(tesseractForm.elements["oculta-" + i].value);
+            const nfeValue = tesseractForm.elements["nfe-" + i].value.toString();
+            const cnpjValue =  tesseractForm.elements["cnpj-" + i].value.toString();
+            if(!nfeValue || !cnpjValue) throw new Error("Por favor, preencha todos os dados");
             data[i] = {
-                nfe: tesseractForm.elements["nfe-" + i].value.toString(),
-                cnpj: tesseractForm.elements["cnpj-" + i].value.toString(),
+                nfe: nfeValue,
+                cnpj: cnpjValue,
                 username: hiddenData.user,
                 scanner: hiddenData.scanner,
                 date: getDate(),
@@ -159,8 +104,9 @@ async function salvarTessa(e) {
         const result = await axios.post("../../core/save-manually-identified-tesseract-core.php", {
             save: data
         });
+        window.close();
     } catch(error) {
+        if(error.message === "Por favor, preencha todos os dados") alert(error.message);
         console.log(error);
     }
-    window.close();
 }

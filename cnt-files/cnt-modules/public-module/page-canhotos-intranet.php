@@ -27,7 +27,7 @@
                             <div id="spinner" class="d-none spinner-border" role="status"></div>
                             <div class="message-box" id="messageBox"></div>
                         </div>
-                        <div class="extra-message-box" id="extraMessageBox"></div>
+                        <div class="d-flex justify-content-center extra-message-box" id="extraMessageBox"></div>
                     </div>
                 </div>
             </div>
