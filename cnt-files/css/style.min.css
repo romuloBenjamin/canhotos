@@ -445,39 +445,22 @@ body,
   margin-top: 1.5rem;
 }
 
-#tesseract-check-panel #tesseractForm {
-  width: 100%;
+#tesseract-check-panel #tesseractForm ul {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
 }
 
-#tesseract-check-panel .image-data ul li {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+#tesseract-check-panel #tesseractForm .card {
+  margin: 0.5rem !important;
 }
 
-#tesseract-check-panel .image-data .img-magnifier-container {
-  position: relative;
-}
-
-#tesseract-check-panel .image-data .img-magnifier-glass {
-  position: absolute;
-  border: 3px solid #000;
-  border-radius: 10%;
-  cursor: none;
-  /*Set the size of the magnifier glass:*/
-  width: 200px;
-  height: 200px;
+#tesseract-check-panel #imagesArea img {
+  margin: 0.5rem 0;
 }
 /*# sourceMappingURL=style.min.css.map */
