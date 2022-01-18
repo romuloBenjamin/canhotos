@@ -1,4 +1,5 @@
 <?php session_start();
+include "./cnt-files/cnt-php/fakeSessions.php";
 include "cnt-files/cnt-php/config.php";
 include DIR_PATH . "cnt-php/tryVars.php";
 $louds = new TryVars();
