@@ -45,3 +45,33 @@ const getTime = () => {
     console.log(time);
     return time;
 }
+
+// Get the json which contains the identify processes running at the moment
+async function getIdentifyProcessesRunningJson(path = "./cnt-files/cnt-modules/scanner-module/jsons/lista-identify-processes-running-json.json") {
+    try {
+        const response = await axios.get(path);
+        return response.data;
+    } catch(error) {
+        console.log(error);
+    }
+    return {};
+}
+
+// Update the json with the identify process currently running
+async function updateIdentifyProcessesRunningJson(userInfo, path = "./cnt-files/cnt-modules/scanner-module/core/lista-identify-processes-running-core.php") {
+    try {
+        const response = await axios.post(path, userInfo);
+    } catch(error) {
+        console.log(error);
+    }
+}
+
+async function erase_files(scannerId, username, path = "./cnt-files/cnt-modules/scanner-module/core/erase-directories-files-core.php") {
+    var config = {scanner: scannerId, user: username};
+    //var config = {scanner: "scanner-1",user: "romulo.franco"};
+    console.log(config);
+    console.log(path);
+    var x = await axios.post(path, {config})
+    console.log(x.data);
+}
+//erase_files();

@@ -188,6 +188,7 @@ async function identify(scannerId = null) {
             dirData.file = item;
             const result = await axios.get("./cnt-files/cnt-modules/scanner-module/core/process-arquivo-escaneado-core.php?id=" + JSON.stringify(dirData));
             const data = result.data;
+            console.log(data);
             // Check for maximum execution time reached
             const stringfiedData = data.toString();
             if(stringfiedData.includes("Maximum execution time")) {
@@ -196,7 +197,7 @@ async function identify(scannerId = null) {
             showMessage("Identificando... " + (index + 1) + "/" + scannedItems.length);
             if(data.identify.origin !== "ZBAR") {
                 tesseractData.push(data);
-                showExtraMessage("Código de barras não identificado. Adicionando para confirmação de dados posterior.");
+                showExtraMessage("Código de barras não identificado, adicionando para confirmação de dados posterior.");
             } else {
                 const dataToSave = {
                     nfe: data.identify.nfe.toString(),

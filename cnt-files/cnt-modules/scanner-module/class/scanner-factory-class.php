@@ -96,13 +96,14 @@ class Scanner_factory
         $erase = new Scanner_factory();
         $erase->build = $this->build;
         $erase->entry = $this->entry;
-
+        /*BASE PATH*/
         $path_local = $this->build["path_local"] . "cnt-files/images/scanner";
         (is_null($erase_dir)) ? $erase_dir = $path_local . "/" . $this->build["scannerID"] . "/" . $this->build["who"] : $erase_dir = $erase_dir;
-
+        /*SCAN FOLDER*/
         $base_to_erase = scandir($erase_dir);
+        /*EXCEPTIONS*/
         $nArray = array(".", "..");
-
+        /*UNLINKS*/
         for ($i = 0; $i < count($base_to_erase); $i++) {
             if (!in_array($base_to_erase[$i], $nArray)) {
                 if (is_dir($erase_dir . "/" . $base_to_erase[$i])) $erase->factory_erase_dir($erase_dir . "/" . $base_to_erase[$i]);
@@ -129,6 +130,7 @@ class Scanner_factory
         /*REMOVE PROCESS & RESULTS SERVER*/
         unlink($path_server_image_process . "\\" . $this->image);
         unlink($path_server_image_results . "\\" . $this->image);
+        unlink($path_server_image_results . "\\" . str_replace(".jpeg", ".txt", $this->image));
         /*REMOVE PROCESS & RESULTS LOCAL*/
         unlink($path_local_image_process . "/" . $this->image);
         unlink($path_local_image_results . "/" . $this->image);
