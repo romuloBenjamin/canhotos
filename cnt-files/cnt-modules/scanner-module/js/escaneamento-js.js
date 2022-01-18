@@ -138,6 +138,7 @@ async function identify() {
         username = await getUsername();
         // User is not logged
         if(!username) {
+            get_disabled_button(false);
             showMessage("Usuário não identificado. Realize o login.");
             return;
         } else {
