@@ -60,7 +60,13 @@ async function getIdentifyProcessesRunningJson(path = "./cnt-files/cnt-modules/s
 // Update the json with the identify process currently running
 async function updateIdentifyProcessesRunningJson(userInfo, path = "./cnt-files/cnt-modules/scanner-module/core/lista-identify-processes-running-core.php") {
     try {
-        const response = await axios.post(path, userInfo);
+        const headers = new Headers();
+        headers.append('pragma', 'no-cache');
+        headers.append('cache-control', 'no-cache');
+
+        const response = await axios.post(path, userInfo, {
+            headers: headers
+        });
     } catch(error) {
         console.log(error);
     }
@@ -68,10 +74,12 @@ async function updateIdentifyProcessesRunningJson(userInfo, path = "./cnt-files/
 
 async function erase_files(scannerId, username, path = "./cnt-files/cnt-modules/scanner-module/core/erase-directories-files-core.php") {
     var config = {scanner: scannerId, user: username};
-    //var config = {scanner: "scanner-1",user: "romulo.franco"};
+    //var config = {
+        //scanner: "scanner-1",
+        //user: "romulo.franco"
+    //};
     console.log(config);
     console.log(path);
     var x = await axios.post(path, {config})
     console.log(x.data);
 }
-//erase_files();
