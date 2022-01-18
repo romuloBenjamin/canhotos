@@ -1,5 +1,4 @@
 // The scan directory currently being used
-let scannerId = null;
 let username = null;
 
 const spinner = document.querySelector("#spinner");
@@ -18,7 +17,6 @@ const addScannerButtons = async () => {
         button.innerHTML = scanner.name;
         if(scanner.name === "Identificar novamente") {
             button.addEventListener("click", (e) => { 
-                get_disabled_button();
                 identify();
             });
         } else {
@@ -28,10 +26,11 @@ const addScannerButtons = async () => {
         buttonContainer.appendChild(button);
     }
 }
+
 addScannerButtons();
 
 /*ADD PROPERTY DISABLED*/
-async function get_disabled_button(type = true) {
+function get_disabled_button(type = true) {
     var disab = document.querySelector("#identificar-novamente");
     (type === true)? disab.setAttribute("disabled", true): disab.removeAttribute("disabled");
     return;
@@ -50,7 +49,6 @@ const getUsername = async () => {
 
 // Get the scanner data and calls the scan process on the chosen server if available
 const scan = async (scanner) => {
-    scannerId = scanner.scanDir;
     showSpinner();
     showMessage("Iniciando...");
     try {
@@ -64,7 +62,7 @@ const scan = async (scanner) => {
             // If 1 or more items were scanned
             if(response.data.scannedItems > 0) {
                 showMessage("Canhotos escaneados com sucesso");
-                identify();
+                identify(scanner.scanDir);
             } else {
                 // If none were scanned
                 showMessage("Não foi possível escanear, verifique se os canhotos foram colocados corretamente ou se estão presos no scanner");
@@ -80,29 +78,12 @@ const scan = async (scanner) => {
     hideSpinner();
 }
 
-// Get the json which contains the identify processes running at the moment
-async function getIdentifyProcessesRunningJson() {
-    try {
-        const response = await axios.get("./cnt-files/cnt-modules/scanner-module/jsons/lista-identify-processes-running-json.json");
-        return response.data;
-    } catch(error) {
-        console.log(error);
-    }
-    return {};
-}
-
-// Update the json with the identify process currently running
-async function updateIdentifyProcessesRunningJson(userInfo) {
-    try {
-        const response = await axios.post("./cnt-files/cnt-modules/scanner-module/core/lista-identify-processes-running-core.php", userInfo);
-    } catch(error) {
-        console.log(error);
-    }
-}
-
 const openPopUp = () => {
     // Open the popup with the built data if there's any
     const popup = window.open("./cnt-files/cnt-modules/scanner-module/template/view/view-alert-tesseract-template.html", "Confirmação de Canhotos", "width=1000 height=700");
+    popup.onunload = async () => {
+        get_disabled_button(false);
+    }
 }
 
 // Show the loading spinner
@@ -129,7 +110,8 @@ const showExtraMessage = (message) => {
 }
 
 /*IDENTIFICAR DE CANHOTOS ESCANEADOS*/
-async function identify() {
+async function identify(scannerId = null) {
+    get_disabled_button();
     let json;
     let userInfo;
     // If the user didn't press a button
@@ -144,6 +126,7 @@ async function identify() {
         } else {
             // Get json if it exists
             json = await getIdentifyProcessesRunningJson();
+            console.log(json)
             userInfo = json[username];
             if(userInfo) {
                 // Loop through scanner names and check if the identify process was running previously for one of them
@@ -156,6 +139,7 @@ async function identify() {
         }
     }
 
+    console.log(scannerId);
     if(!scannerId) {
         get_disabled_button(false);
         showMessage("Nenhum processo prévio de identificação encontrado.");
@@ -231,23 +215,23 @@ async function identify() {
         if(tesseractData.length > 0) {
             localStorage.setItem("tesseract-data", JSON.stringify(tesseractData));
             openPopUp();
+        } else {
+            // Get the current json
+            json = await getIdentifyProcessesRunningJson();
+                    
+            // Remove the current scanner from the userinfo
+            userInfo = json[username];
+            if(userInfo) delete userInfo[scannerId];
+
+            await updateIdentifyProcessesRunningJson({
+                [username]: userInfo
+            });
+            erase_files(scannerId, username);
+            get_disabled_button(false);
         }
-
-        // Get the current json
-        json = await getIdentifyProcessesRunningJson();
-    
-        // Remove the current scanner from the userinfo
-        userInfo = json[username];
-        if(userInfo) delete userInfo[scannerId];
-
-        await updateIdentifyProcessesRunningJson({
-            [username]: userInfo
-        });
-        get_disabled_button(false);
     } catch (error) {
         console.log(error);
         showMessage("Ocorreu uma falha.");
     }
-
     hideSpinner();
 }

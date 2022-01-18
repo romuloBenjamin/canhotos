@@ -67,6 +67,10 @@ class Scanner_compound
                 $compound->build = $this->build;
                 return $compound->compound_factory_images();
                 break;
+            case 'limpar-pasta-local':
+                $compound->build = $this->build;
+                return $compound->compound_factory();
+                break;
                 /*default:break; */
         }
     }

@@ -55,17 +55,28 @@ const showTesseractItems = () => {
 
 showTesseractItems();
 
+// Toggle the images according to the clicked button's id
+function toggleImages(buttonId, images) {
+    for (let index = 0; index < images.children.length; index++) {
+        const image = images.children[index];
+        if(buttonId === "canhotoButton") {
+            if(image.id.includes("canhoto")) image.classList.remove("d-none");
+            else image.classList.add("d-none");
+        } else {
+            if(image.id.includes("canhoto")) image.classList.add("d-none");
+            else image.classList.remove("d-none");
+        }
+    }
+} 
+
 /*VIEW NFE*/
-async function ver_sample(e) {
+function ver_sample(e) {
     e.classList.add("active");
     var base = e.parentElement.parentElement.parentElement.parentElement;
     if(e.id === "canhotoButton") base.querySelector("#nfeButton").classList.remove("active");
     else base.querySelector("#canhotoButton").classList.remove("active");
-    var images = base.querySelector("#imagesArea");
-    for (let index = 0; index < images.children.length; index++) {
-        const data = images.children[index];
-        if(data.tagName === "IMG") data.classList.toggle("d-none");
-    }
+    const images = base.querySelector("#imagesArea");
+    toggleImages(e.id, images);
 }
 
 /*VIEW CANHOTOS*/
@@ -75,6 +86,8 @@ async function ver_canhoto(e) {
 
 /*SALVAR TESSA*/
 async function salvarTessa(e) {
+    let username;
+    let scannerId;
     // Get the number of items (groups of cnpj / nfe / etc)
     const numberOfItems = itemPlacer.children.length;
     if(numberOfItems <= 0) return;
@@ -97,6 +110,8 @@ async function salvarTessa(e) {
                 time: getTime(),
                 image: hiddenData.image
             }
+            if(!username) username = hiddenData.user;
+            if(!scannerId) scannerId = hiddenData.scanner;
             // Add the data to log
             const addToLog = await axios.post("../../core/add-to-log-file-core.php", data[i]);
             i++;
@@ -104,6 +119,17 @@ async function salvarTessa(e) {
         const result = await axios.post("../../core/save-manually-identified-tesseract-core.php", {
             save: data
         });
+        // Get the current json
+        let json = await getIdentifyProcessesRunningJson("../../jsons/lista-identify-processes-running-json.json");
+        
+        // Remove the current scanner from the userinfo
+        let userInfo = json[username];
+        if(userInfo) delete userInfo[scannerId];
+
+        await updateIdentifyProcessesRunningJson({
+            [username]: userInfo
+        }, "../../core/lista-identify-processes-running-core.php");
+        await erase_files(scannerId, username, "../../core/erase-directories-files-core.php");
         window.close();
     } catch(error) {
         if(error.message === "Por favor, preencha todos os dados") alert(error.message);

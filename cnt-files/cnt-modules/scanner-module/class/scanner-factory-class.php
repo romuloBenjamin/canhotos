@@ -21,6 +21,11 @@ class Scanner_factory
                 $factory->build = $builds;
                 return $factory->factory_expired_digitals_signs();
                 break;
+            case 'limpar-pasta-local':
+                $builds = $factory->factory_mergeBuild($factory->build, $this->build);
+                $factory->build = $builds;
+                return $factory->factory_erase_dir();
+                break;
                 /*default:break; */
         }
     }
@@ -85,11 +90,26 @@ class Scanner_factory
         }
         return $nArray;
     }
-
     /*ERASE DIR*/
-    public function factory_erase_dir($where = "path_results")
+    public function factory_erase_dir($erase_dir = null)
     {
-        var_dump("not implemented");
+        $erase = new Scanner_factory();
+        $erase->build = $this->build;
+        $erase->entry = $this->entry;
+
+        $path_local = $this->build["path_local"] . "cnt-files/images/scanner";
+        (is_null($erase_dir)) ? $erase_dir = $path_local . "/" . $this->build["scannerID"] . "/" . $this->build["who"] : $erase_dir = $erase_dir;
+
+        $base_to_erase = scandir($erase_dir);
+        $nArray = array(".", "..");
+
+        for ($i = 0; $i < count($base_to_erase); $i++) {
+            if (!in_array($base_to_erase[$i], $nArray)) {
+                if (is_dir($erase_dir . "/" . $base_to_erase[$i])) $erase->factory_erase_dir($erase_dir . "/" . $base_to_erase[$i]);
+                unlink($erase_dir . "/" . $base_to_erase[$i]);
+            }
+        }
+        return;
     }
     /*REMOVE IMAGE FROM FOLDERS*/
     public function factory_erase_link()
