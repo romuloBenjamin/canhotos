@@ -62,7 +62,32 @@ const scan = async (scanner) => {
             // If 1 or more items were scanned
             if(response.data.scannedItems > 0) {
                 showMessage("Canhotos escaneados com sucesso");
-                identify(scanner.scanDir);
+                $("#dialog").toggleClass("d-none");
+                $(function() {
+                    $("#dialog").dialog(
+                        {
+                            width: 600,
+                            buttons: [
+                                {
+                                    text:"Escanear mais canhotos",
+                                    click: function() {
+                                        $(this).dialog( "close" );
+                                        $("#dialog").toggleClass("d-none");
+                                        scan(scanner);
+                                    }
+                                },
+                                {
+                                    text:"Iniciar identificação",
+                                    click: function() {
+                                        $(this).dialog( "close" );
+                                        $("#dialog").toggleClass("d-none");
+                                        identify(scanner.scanDir);
+                                    }
+                                }
+                            ]
+                        }
+                    );
+                });
             } else {
                 // If none were scanned
                 showMessage("Não foi possível escanear, verifique se os canhotos foram colocados corretamente ou se estão presos no scanner");
@@ -126,7 +151,7 @@ async function identify(scannerId = null) {
         } else {
             // Get json if it exists
             json = await getIdentifyProcessesRunningJson();
-            console.log(json)
+            console.log(json);
             userInfo = json[username];
             if(userInfo) {
                 // Loop through scanner names and check if the identify process was running previously for one of them
@@ -197,7 +222,7 @@ async function identify(scannerId = null) {
             }
             if(data.identify.origin !== "ZBAR") {
                 tesseractData.push(data);
-                showExtraMessage("Código de barras não identificado, adicionando para confirmação de dados posterior.");
+                showExtraMessage("Código de barras não identificado. Adicionando para confirmação de dados posterior.");
             } else {
                 const dataToSave = {
                     nfe: data.identify.nfe.toString(),
@@ -227,6 +252,7 @@ async function identify(scannerId = null) {
             await updateIdentifyProcessesRunningJson({
                 [username]: userInfo
             });
+            console.log("erasing...")
             erase_files(scannerId, username);
             get_disabled_button(false);
         }

@@ -35,6 +35,10 @@
     </div>
 </div>
 
+<div id="dialog" title="Confirmação" class="d-none">
+    <p>Deseja escanear mais canhotos ou iniciar o processo de identificação?</p>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="<?= DIR_PATH; ?>cnt-modules/scanner-module/js/check-certificados-js.js"></script>
 <script src="<?= DIR_PATH; ?>cnt-modules/scanner-module/js/escaneamento-js.js"></script>

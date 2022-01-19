@@ -70,7 +70,7 @@ define(
         "CNPJ" => "10290557000168",
         "PASS" => "10262727",
         "SITE" => "SALES EQUIP",
-        "SECONDARY_KNOW_NAMES" => array("EQUIP", "BOUIP", "EOUIP", "KQUIP", "CQUIP", "UOUIP", "EGUIP")
+        "SECONDARY_KNOW_NAMES" => array("EQUIP", "BOUIP", "EOUIP", "KQUIP", "CQUIP", "UOUIP", "EGUIP", "BQUIP")
     )
 );
 define(
@@ -108,7 +108,7 @@ define(
         "CNPJ" => "30379727000192",
         "PASS" => "10262727",
         "SITE" => "SANDALO EQUIP",
-        "SECONDARY_KNOW_NAMES" => array("EQUIP", "BOUIP", "EOUIP", "KQUIP", "CQUIP", "UOUIP", "EGUIP")
+        "SECONDARY_KNOW_NAMES" => array("EQUIP", "BOUIP", "EOUIP", "KQUIP", "CQUIP", "UOUIP", "EGUIP", "BQUIP")
     )
 );
 /*DONA*/

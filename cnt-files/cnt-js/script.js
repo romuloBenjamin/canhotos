@@ -60,9 +60,11 @@ async function getIdentifyProcessesRunningJson(path = "./cnt-files/cnt-modules/s
 // Update the json with the identify process currently running
 async function updateIdentifyProcessesRunningJson(userInfo, path = "./cnt-files/cnt-modules/scanner-module/core/lista-identify-processes-running-core.php") {
     try {
-        const headers = new Headers();
-        headers.append('pragma', 'no-cache');
-        headers.append('cache-control', 'no-cache');
+        const headers = {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
 
         const response = await axios.post(path, userInfo, {
             headers: headers

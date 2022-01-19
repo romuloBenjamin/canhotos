@@ -54,15 +54,6 @@ class Scanner_factory
         $dimens = new Scanner_factory();
         $dimens->build = $this->build;
 
-        /*
-        if ($dimens->build["crop_index"] == 0) $dimensions = array(1000, 400, array(850, 600), "topLeft");
-        if ($dimens->build["crop_index"] == 1) $dimensions = array(1400, 200, array(20, 400), "middle");
-        if ($dimens->build["crop_index"] == 2) $dimensions = array(1400, 400, array(20, 100), "middle");
-        if ($dimens->build["crop_index"] == 3) $dimensions = array(1400, 400, array(150, 100), "topLeft");
-        if ($dimens->build["crop_index"] == 4) $dimensions = array(600, 400, array(1800, 100), "middle");
-        if ($dimens->build["crop_index"] == 5) $dimensions = array(2300, 500, array(10, 5), "middle");
-        */
-
         if ($dimens->build["crop_index"] == 0) $dimensions = array(1000, 400, array(850, 600), "topLeft");
         if ($dimens->build["crop_index"] == 1) $dimensions = array(1400, 200, array(20, 400), "middle");
         if ($dimens->build["crop_index"] == 2) $dimensions = array(1400, 400, array(20, 100), "middle");
