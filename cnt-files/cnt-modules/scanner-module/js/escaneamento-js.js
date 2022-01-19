@@ -177,7 +177,7 @@ async function identify(scannerId = null) {
         const response = await axios.get("./cnt-files/cnt-modules/scanner-module/core/listar-arquivos-escaneados-core.php?id=" + JSON.stringify(dirData));
         const scannedItems = response.data;
         console.log(scannedItems);
-        if(!scannedItems) {
+        if(!scannedItems || scannedItems.length === 0) {
             showMessage("Nenhum arquivo encontrado. Realize o processo escaneamento novamente.");
             return;
         }

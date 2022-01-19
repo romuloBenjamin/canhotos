@@ -271,6 +271,23 @@ class Scanner_image_factory
             $nfe = $factory->images_factory_empresa_nfe();
             $factory->build["identify"]["nfe"] = $nfe;
             return $factory->build;
+        } else if (count(array_intersect(SANDALO_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
+            $builds = $factory->images_factory_identify_init();
+            $factory->build = $builds;
+            /*GET CNPJ DA EMPRESA*/
+            $cnpj = $factory->images_factory_empresa_cnpj();
+            $factory->build["identify"]["cnpj"] = $cnpj;
+            $nfe = $factory->images_factory_empresa_nfe();
+            $factory->build["identify"]["nfe"] = $nfe;
+            return $factory->build;
+        } else if (count(array_intersect(DONA_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
+            $builds = $factory->images_factory_identify_init();
+            $factory->build = $builds;
+            /*GET CNPJ DA EMPRESA*/
+            $factory->build["identify"]["cnpj"] = DONA_DESCARTAVEIS["CNPJ"];
+            $nfe = $factory->images_factory_empresa_nfe();
+            $factory->build["identify"]["nfe"] = $nfe;
+            return $factory->build;
         } else {
             $try++;
             $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
