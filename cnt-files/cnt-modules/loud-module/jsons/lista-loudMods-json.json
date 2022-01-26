@@ -48,6 +48,11 @@
         {
             "module": "scanner",
             "folder":"class",
+            "file": "scanner-patterns-factory"
+        },
+        {
+            "module": "scanner",
+            "folder":"class",
             "file": "scanner-tesseract"
         },
         {

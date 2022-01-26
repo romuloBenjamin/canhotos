@@ -15,7 +15,6 @@ $loudConns->loudModules();
 require_once('../../../../vendor/autoload.php');
 /*SAVE TESSA*/
 $factory = new Scanner_compound();
-$factory->swit = "save-tesseract-files";
-$_POST = json_decode(file_get_contents('php://input'), true);
-$factory->entry = $_POST;
-echo $factory->compound_scanner();
+$dados = json_decode(file_get_contents('php://input'), true);
+$factory->entry = $dados;
+$factory->save_tesseract_files();

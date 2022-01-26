@@ -16,42 +16,32 @@ $louds->loudModules();
 require_once('../../../../vendor/autoload.php');
 /*VARIAVEIS*/
 $data = json_decode($_GET["id"]);
-/*GERAR PROCESSO -> create init samples*/
+//(!isset($data->swit)) ? $data->swit = "initialize" : $data->swit = "undefined";
+//echo json_encode($data);
+
+/*GERAR PROCESSO -> create ambient de processamento*/
 $process = new Scanner_compound();
-$process->entry = $data->file;
-$process->swit = "create-jpeg";
-$process->build = array();
-$process->build["scannerID"] = $data->scanner;
-$process->build["who"] = $data->user;
-$new_images = $process->compound_scanner();
-/*GERAR PROCESSO -> get size datas*/
-$process->entry = $new_images;
-$process->swit = "jpeg-get-data-parameters";
-$builds = $process->compound_scanner();
-$process->build = $builds;
-$process->build["images"] = $new_images;
-/*CONFIRM IF NEED TO FLIP IMAGE & BAR CODE READER*/
-$process->swit = "there-is-need-to-flip-sample";
-$barCode = $process->compound_scanner();
-/*GET IDENTIFY & READS -> TESSERACT READS*/
-//echo json_encode($barCode);
-if (is_null($barCode)) {
-    /*GET READS*/
-    $process->swit = "tesseract-identify-reads";
-    $builds = $process->compound_scanner();
-    $process->build = $builds;
-    $process->swit = "tesseract-identify-steps";
-    $builds = $process->compound_scanner();
-    $process->build = $builds;
+$process->entry = json_encode($data);
+$process->compound_build();
+
+/*CRIAR AMBIENTE DE PROCESSAMENTOS NO SERVIDOR*/
+/*GERA LISTA PARA IDENTIFICAR*/
+if ($data->swit == "get-file-list") {
+    $process->compound_ambient_patterns();
+    $process->compound_build_prepath();
+    $process->entry = array("path" => "usuario", "where" => "rede");
+    $lista_arquivos = $process->compound_lista_canhotos();
+    echo json_encode($lista_arquivos);
 }
-/*GET IDENTIFY & READS -> ZBAR*/
-if (!is_null($barCode)) {
-    /*GET READS*/
-    $process->swit = "zbar-identify-reads";
-    $process->build["zbar_read"] = $barCode;
-    $builds = $process->compound_scanner();
-    $process->build = $builds;
-    $process->swit = "zbar-identify";
-    $builds = $process->compound_scanner();
+/*CREATE FILE IN PROCESS*/
+if ($data->swit == "get-file-data-process") {
+    $process->entry = $data->file;
+    $process->compound_file_process2();
+    $zbar = $process->reader_zbar();
+    if (count(get_object_vars($zbar)) == 0) {
+        $tesse = $process->reader_tesseract();
+        echo json_encode($tesse);
+    } else {
+        echo json_encode($zbar);
+    }
 }
-echo json_encode($process->build);

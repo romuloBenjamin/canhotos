@@ -40,7 +40,8 @@ class Scanner_tesseract
             "cd " . $this->build["path_local"] . "\n",
             "cd cnt-files\\cnt-assets\n"
         );
-        $commands[] = "tesseract \\\\172.16.0.19\\Desenvolvimento\\scanner\\" . $this->build["scannerID"] . "\\" . $this->build["who"] . "\\results\\" . $this->entry . " \\\\172.16.0.19\\Desenvolvimento\\scanner\\" . $this->build["scannerID"] . "\\" . $this->build["who"] . "\\results\\" . $file_and_extensions[0] . " -l por";
+        $path_rede = $this->build["path"]["rede"]["results"] . "\\" . $this->build["images"]->to;
+        $commands[] = "tesseract " . $path_rede . " " . str_replace(".jpeg", "", $path_rede) . " -l por";
         return $commands;
     }
     /*BUILD TESSERACT BAT*/
@@ -61,9 +62,8 @@ class Scanner_tesseract
     public function tesseract_mysteries()
     {
         $file_and_extensions = explode(".", $this->entry);
-        $path_to_txt = $this->build["path_rede"] . str_replace("./", "", $this->build["path_origin"]) . "\\" . $this->build["scannerID"] . "\\" . $this->build["who"];
-        $path_to_mysteries = $path_to_txt . str_replace("./scanner/", "\\", $this->build["path_results"]);
-        $content = file_get_contents($path_to_mysteries . "\\" . $file_and_extensions[0] . ".txt");
+        $path_results = $this->build["path"]["rede"]["results"];
+        $content = file_get_contents($path_results . "\\" . $file_and_extensions[0] . ".txt");
         $content = trim(str_replace(REMOVE_SPECIALS, "", $content));
         if (strlen($content) != 0) {
             return array("status" => "1", "msn" => "ok", "data" => $content);

@@ -8,22 +8,21 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="../../../../cnt-js/jquery.js"></script>
         <link rel="stylesheet" href="../../../../css/style.min.css"/>
+        <link rel="stylesheet" href="../../../../cnt-assets/fontawesome/css/all.css">
         <script src="../../../../cnt-js/script.js" defer></script>
     </head>
     <body>
         <div id="tesseractPlacer"></div>
         <section id="liberarTessa" class="d-none">
-            <h3><strong>Favor confirmar os dados abaixo:</strong></h3>
+            <h3><strong>Favor confirmar/preencher os dados abaixo:</strong></h3>
             <hr>
-            <form action="javascript: void(0);" id="tesseractForm" class="form">
+            <form action="javascript: void(0);" onsubmit="salvarTessa(this)" id="tesseractForm" class="form">
                 <ul class="list-group list-group-horizontal">
                     
                 </ul>
+                <button id="salvar-tessa" class="btn btn-success btn-lg">Salvar</button>
             </form>
             <hr>
-            <div class="btn">
-                <button type="button" id="salvar-tessa" onClick="salvarTessa(this);" class="btn btn-success">Salvar</button>
-            </div>
         </section>
         <div class="d-none">
             <li id="cloneNode" class="card">
@@ -39,22 +38,32 @@
                 </div>
                 <div class="card-body">
                     <div class="area-images d-flex justify-content-center align-items-center" id="imagesArea">
-                        <img id="cloneImage" onClick="ver_canhoto(this);" class="canhotos-images canhoto_view d-none" width="350" height="100" src="" alt="">
-                        <img id="cloneImage2" class="canhotos-images nfe_view" width="120" height="100" src="" alt="">
+                        <div class="d-none" id="canhotoContainer">
+                            <img id="cloneImage" onClick="ver_canhoto(this);" class="canhotos-images canhoto_view" height="120" src="" alt="">
+                            <button type="button" class="btn btn-primary rotate-button" onClick="rotate(this)"><i class="fas fa-sync"></i></button>
+                        </div>
+                        <img id="cloneImage2" class="canhotos-images nfe_view" height="120" src="" alt="">
                     </div>
 
                     <!-- DADOS IDENTIFICADOS -->
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">CNPJ Empresa: </span>
+                            <span class="input-group-text">Empresa: </span>
                         </div>
-                        <input type="text" class="form-control" placeholder="CNPJ..." id="cnpj" name="cnpj" maxlength="14" required>
+                        <select name="cnpj" id="cnpj" class="custom-select">
+                            <option value="" selected>SELECIONE A EMPRESA</option>
+                            <option value="10290557000168">SALES EQUIP - 10.290.557/0001-68</option>
+                            <option value="66826918000100">SALES IND - 66.826.918/0001-00</option>
+                            <option value="21823607000141">SANDALO COMER - 21.823.607/0001-41</option>
+                            <option value="30379727000192">SANDALO EQUIP - 30.379.727/0001-92</option>
+                            <option value="35765246000139">DONA DESCARTAVE - 35.765.246/0001-39</option>
+                          </select>
                     </div>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">NFE: </span>
                         </div>
-                        <input type="text" class="form-control" placeholder="NFE..." id="nfe" name="nfe" value="" maxlength="9" required>
+                        <input type="text" class="form-control" placeholder="DIGITE A NFE" id="nfe" name="nfe" value="" maxlength="9" minlength="9" required>
                     </div>
                     <input type="hidden" id="oculta" name="oculta">
                 </div>

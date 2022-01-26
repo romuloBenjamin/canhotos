@@ -1,12 +1,12 @@
 <?php
-
-use setasign\Fpdi\PdfParser\Filter\Ascii85;
-
 class Scanner_image_factory
 {
     var $image;
-    var $swit;
     var $build;
+    var $where;
+    var $from;
+    var $to;
+    var $reader;
 
     public function __construct()
     {
@@ -15,9 +15,6 @@ class Scanner_image_factory
         $this->build["sizes"] = array("width" => 0, "height" => 0);
         $this->build["crop"] = array(0, 0, 0, 0);
         $this->build["crop_index"] = 1;
-        $this->build["tesseract_read"] = "";
-        $this->build["zbar_read"] = "";
-        $this->build["identify"] = array();
         $this->build["gamma_index"] = 0.200;
         $this->build["blur_indexes"] = array(1, 1.5);
         $this->build["specials"] = array(
@@ -32,477 +29,491 @@ class Scanner_image_factory
             "sharpen" => false,
             "sharpen_data" => array(1, 1.1)
         );
-        $this->build["positions"] = 0;
+        /*ADD STD CLASS*/
+        $this->reader = new stdClass();
+        $this->identify = new stdClass();
     }
 
-    /*FACTORY IMAGES*/
-    public function images_factory()
+    /*MERGE BUILDS*/
+    public function compound_build()
     {
-        $factory = new Scanner_image_factory();
-        $get_factory = new Scanner_factory();
-        switch ($this->swit) {
-            case 'initialize-scann':
-                $builds = $get_factory->factory_mergeBuild($factory->build, $this->build);
-                $get_factory->build = $builds;
-                return $get_factory->factory_scandir();
+        $builds = new Scanner_image_factory();
+        $builds->build = array_merge($builds->build, $this->build);
+        return $builds->build;
+    }
+
+    /*GET IMAGE PATH*/
+    public function get_image_path()
+    {
+        $this->build["path"]["image"] = array();
+        $this->build["path"]["image"][$this->from] = $this->build["path"]["rede"][$this->from];
+        $this->build["path"]["image"][$this->to] = $this->build["path"]["rede"][$this->to];
+        return;
+    }
+
+    /*SET FROM & TO*/
+    public function set_from_to()
+    {
+        switch ($this->where) {
+            case 'usuario':
+                $this->from = $this->where;
+                $this->to = "process";
                 break;
-            case 'create-jpeg':
-                /*AJUSTAR BUILDS*/
-                $builds = $get_factory->factory_mergeBuild($factory->build, $this->build);
-                $get_factory->build = $builds;
-                $get_factory->image = $this->image;
-                $get_factory->factory_identify_sample_init(false, "path_origin");
-                $images = explode(".", $this->image);
-                return $images[0] . ".jpeg";
+            case 'process':
+                $this->from = $this->where;
+                $this->to = "results";
                 break;
-            case 'jpeg-get-data-parameters':
-                /*MERGE BUIDS*/
-                $builds = $get_factory->factory_mergeBuild($factory->build, $this->build);
-                $get_factory->build = $builds;
-                $get_factory->image = $this->image;
-                /*CONFIRMA W VS H*/
-                $image_sizes = $get_factory->factory_getSizes();
-                $get_factory->build["sizes"] = $image_sizes;
-                /*FACTORY DATA*/
-                $factory->image = $this->image;
-                $factory->build = $get_factory->build;
-                return $factory->images_factory_orientations();
+                /*default:break;*/
+        }
+        return;
+    }
+
+    /*GET IMAGE SIZES*/
+    public function image_samples_sizes()
+    {
+        $nArray = array();
+        /*IMAGICK*/
+        $imagick = new Imagick();
+        if ($this->where == "usuario") $read_image = $this->build["path"]["image"][$this->from] . "\\" . $this->image;
+        if ($this->where != "usuario") $read_image = $this->build["path"]["image"][$this->from] . "\\" . $this->build["images"]->from;
+        /*IMAGICK*/
+        if (file_exists($read_image)) {
+            $imagick->readImage($read_image);
+            $nArray["width"] = $imagick->getImageWidth();
+            $nArray["height"] = $imagick->getImageHeight();
+            /*update sizes*/
+            $this->build["sizes"] = $nArray;
+        }
+        return;
+    }
+
+    /*FILE JPEG*/
+    public function file_jpeg()
+    {
+        $xplode = explode(".", $this->image);
+        $this->build["images"] = new stdClass();
+        ($this->where == "usuario") ? $this->build["images"]->from = $this->image : $this->build["images"]->from = $xplode[0] . ".jpeg";
+        $this->build["images"]->to = $xplode[0] . ".jpeg";
+        return;
+    }
+
+    /*CREATE CROP DATA TO ZBAR*/
+    public function create_crop_dimensions()
+    {
+        $nArray = array();
+        /*TAMANHOS E POSIÇÔES PARA CRIACAO DO SAMPLE*/
+        switch ($this->build["crop_index"]) {
+            case 1:
+                $nArray["width"] = 25;
+                $nArray["height"] = 30;
+                $nArray["x"] = 120;
+                $nArray["y"] = 0;
                 break;
-            case 'there-is-need-to-flip-sample':
-                $factory->image = $this->image;
-                $factory->build = $this->build;
-                return $factory->images_barcode_reader();
+            case 2:
+                $nArray["width"] = 42;
+                $nArray["height"] = 40;
+                $nArray["x"] = 730;
+                $nArray["y"] = 0;
                 break;
-            case 'zbar-identify-reads':
-                $factory->image = $this->image;
-                $factory->build = $this->build;
-                return $factory->images_factory_identify_init();
+            case 3:
+                $nArray["width"] = 20;
+                $nArray["height"] = 30;
+                $nArray["x"] = $this->build["sizes"]["width"] - 650;
+                $nArray["y"] = 40;
                 break;
-            case 'zbar-identify':
-                $factory->image = $this->image;
-                $factory->build = $this->build;
-                $factory->swit = "start-to-certify";
-                return $factory->images_factory();
+            case 4:
+                $nArray["width"] = 42;
+                $nArray["height"] = 20;
+                $nArray["x"] = 730;
+                $nArray["y"] = 100;
                 break;
-            case 'tesseract-identify-reads':
-                $factory->image = $this->image;
-                $factory->build = $this->build;
-                return $factory->images_factory_tesseract_init();
-                break;
-            case 'tesseract-identify-steps':
-                /*SOMENTE PARA TESSERACT IDENT*/
-                $factory->build = $this->build;
-                $factory->image = $this->image;
-                $ident = $factory->images_factory_tesseract_steps();
-                return $ident;
-                break;
-            case 'start-to-certify':
-                $factory->build = $this->build;
-                $factory->image = $this->image;
-                if (is_array($factory->build["identify"])) {
-                    /*IDENTIFY VIA ZBAR*/
-                    if ($factory->build["identify"]["origin"] == "ZBAR") return $factory->images_factory_certify();
-                    /*IDENTIFY VIA TESSERACT*/
-                    if ($factory->build["identify"]["origin"] == "TESSERACT") {
-                        $factory->swit = "confirm-tesseract";
-                        $factory->build = $factory->images_factory_certify();
-                        return $factory->images_factory();
-                    }
-                    /*FAIL TO IDENTIFY*/
-                    if ($factory->build["identify"]["origin"] == "FAILS-TESSERACT") {
-                        $factory->swit = "confirm-tesseract";
-                        return $factory->images_factory();
+                /*default:break;*/
+        }
+
+        /*DIMENSIONS*/
+        #1 -> ZBAR
+        #2 -> TEXT PRINCIPAL TESSA
+        #3 -> Nº NFE
+        #4 -> TEXT PRINCIPAL 2tnt
+
+        /*CALCULAR EM PIXEL -> samples w VS h*/
+        $nArray["width"] = ($this->build["sizes"]["width"] * $nArray["width"]) / 100;
+        $nArray["height"] = ($this->build["sizes"]["height"] * $nArray["height"]) / 100;
+        $this->build["crop"] = $nArray;
+        return;
+    }
+
+    /*CREATE SAMPLES -> folder process*/
+    public function create_sample_inprocess2()
+    {
+        $this->set_from_to();
+        $this->get_image_path();
+        $this->image_samples_sizes();
+        $this->force_image_horizontal();
+        $this->file_jpeg();
+        $this->build_image_sample();
+        return $this;
+    }
+
+    /*CREATE SAMPLE -> folder results*/
+    public function create_sample_inresults2()
+    {
+        $builds = $this->compound_build();
+        $this->build = $builds;
+        $this->set_from_to();
+        $this->get_image_path();
+        $this->file_jpeg();
+        $this->image_samples_sizes();
+        $this->create_crop_dimensions();
+        $this->build_image_sample();
+        return $this;
+    }
+    /*FORCE IMAGE ORIENTATIONS HORIZONTAL*/
+    public function force_image_horizontal()
+    {
+        if ($this->build["sizes"]["width"] < $this->build["sizes"]["height"]) {
+            $this->image_rotate();
+            $this->image_samples_sizes();
+            return;
+        }
+        return;
+    }
+
+    /*CREATE IMAGE SAMPLE*/
+    public function build_image_sample()
+    {
+        /*CREATE SAMPLE*/
+        $read_image = $this->build["path"]["image"][$this->from] . "\\" . $this->build["images"]->from;
+        $imagick = new Imagick();
+        if (file_exists($read_image)) {
+            $imagick->readImage($read_image);
+            $imagick->setResolution(1000, 500);
+            $imagick->setImageFormat("jpeg");
+            $imagick->despeckleImage();
+            /*PLACE IMAGE IN OLDER*/
+            if (isset($this->build["crop"])) {
+                $imagick->despeckleImage();
+                /*SPECIALS*/
+                if ($this->build["specials"] == true) {
+                    if ($this->build["specials"]["greyScale"] == true) $imagick->setImageType(Imagick::IMGTYPE_GRAYSCALEMATTE);
+                    if ($this->build["specials"]["enhance"] == true) $imagick->enhanceImage();
+                    if ($this->build["specials"]["equalize"] == true) $imagick->equalizeImage();
+                    if ($this->build["specials"]["depth"] == true) $imagick->setImageDepth($this->build["specials"]["depth_data"]);
+                    if ($this->build["specials"]["sharpen"] == true) {
+                        $sharpen_data = $this->build["specials"]["sharpen_data"];
+                        $imagick->sharpenImage($sharpen_data[0], $sharpen_data[1]);
                     }
                 }
-                break;
-            case 'confirm-tesseract':
-                $this->swit = "";
-                $this->build["crt"] = "";
-                $this->build["image"] = $this->image;
-                return $this->build;
-                break;
-            case 'save-tesseract-files':
-                $builds = $get_factory->factory_mergeBuild($factory->build, $this->build);
-                $factory->build = $builds;
-                $factory->image = $this->image;
-                return $factory->images_factory_tesseract_save();
-                break;
-                /*default:break; */
+                $crop_image = $this->build["crop"];
+                $imagick->blurImage($this->build["blur_indexes"][0], $this->build["blur_indexes"][1]);
+                $imagick->gammaImage($this->build["gamma_index"], Imagick::CHANNEL_ALL);
+                $imagick->cropImage($crop_image["width"], $crop_image["height"], $crop_image["x"], $crop_image["y"]);
+            }
+            /*put image inrede -> process & results*/
+            $put_image_rede = $this->build["path"]["image"][$this->to] . "\\" . $this->build["images"]->to;
+            (file_exists($put_image_rede)) ? file_put_contents($put_image_rede, "") : "";
+            file_put_contents($put_image_rede, $imagick);
+            /*put image inlocal -> process & results*/
+            $put_image_local = $this->build["path"]["local"][$this->to] . "\\" . $this->build["images"]->to;
+            (file_exists($put_image_local)) ? file_put_contents($put_image_local, "") : "";
+            file_put_contents($put_image_local, $imagick);
         }
+        $imagick->clear();
+        $imagick->destroy();
+        return;
     }
-    /*------------------------------------------>ORIENTATIONS<-------------------------------------------*/
-    public function images_factory_orientations()
+
+    /*ROTATE IMAGE*/
+    public function image_rotate($deg = 90)
     {
-        /*SCANNER IMAGE*/
-        $factory = new Scanner_image_factory();
-        $factory->build = $this->build;
-        $factory->image = $this->image;
-        /*SCANNER FACTORY*/
-        $get_factory = new Scanner_factory();
-        $get_factory->build = $factory->build;
-        $get_factory->image = $factory->image;
-        /*INIT ORIENTATION*/
-        $image_sizes = $get_factory->factory_getSizes();
-        if ($image_sizes["width"] > $image_sizes["height"]) {
-            $get_factory->build["sizes"] = $image_sizes;
-            $factory->build = $get_factory->build;
-            return $factory->build;
+        /*IMAGICK*/
+        $imagick = new Imagick();
+        if ($this->where == "usuario") $read_image = $this->build["path"]["image"][$this->from] . "\\" . $this->image;
+        if ($this->where != "usuario") $read_image = $this->build["path"]["image"][$this->from] . "\\" . $this->build["images"]->from;
+        $imagick->readImage($read_image);
+        $imagick->rotateImage("#fff", $deg);
+        /*ROTATE CONTENTs*/
+        (file_exists($read_image)) ? file_put_contents($read_image, "") : "";
+        file_put_contents($read_image, $imagick);
+        $imagick->clear();
+        $imagick->destroy();
+        return;
+    }
+
+    /*PREPARE READER ZBAR*/
+    public function prepare_reader_zbar($try = 0)
+    {
+        $builds = $this->compound_build();
+        $this->build = $builds;
+        $this->set_from_to();
+        $this->get_image_path();
+        $this->file_jpeg();
+        $this->image_samples_sizes();
+        $this->create_crop_dimensions();
+        $read = $this->read_zbar();
+        $this->reader->zbar = $read;
+        /*IDENTIFICADO PELO ZBAR*/
+        if ($this->reader->zbar->code == 200) {
+            $this->identify_format("ZBAR");
+            $this->get_certificado_data();
+            $this->certificar_canhoto();
         } else {
-            /*ROTATE IMAGE TO TRY PUT IMAGE IN LANDSCAPE*/
-            $get_factory->factory_rotate(90, "path_process", "path_process");
-            $get_factory->factory_rotate(90, "path_process", "path_process", "local");
-            $image_sizes = $get_factory->factory_getSizes();
-            $get_factory->build["sizes"] = $image_sizes;
-            $factory->build = $get_factory->build;
-            return $factory->images_factory_orientations();
+            $this->image_rotate(180);
+            $this->build_image_sample();
+            if ($try == 0) {
+                $try++;
+                return $this->prepare_reader_zbar($try);
+            }
         }
+        return $this->identify;
     }
-    /*--------------------------------------------->IDENTIFY<---------------------------------------------*/
-    public function images_factory_identify_init()
+    public function save_tesseract_complemento_patterns()
     {
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*SCAN FACTORY*/
-        $factory = new Scanner_factory();
-        $factory->image = $identify->image;
-        $factory->build = $identify->build;
-        /*INIT IDENTIFY*/
-        $identify->build["identify"] = array();
-        /*CONF ZBAR*/
-        if (!empty($factory->build["zbar_read"])) {
-            $identify->build["identify"]["origin"] = "ZBAR";
-            $identify->build["identify"]["cnpj"] = '"' . substr($factory->build["zbar_read"], 0, 14) . '"';
-            $identify->build["identify"]["nfe"] = substr($factory->build["zbar_read"], 14, strlen($factory->build["zbar_read"]));
-            return $identify->build;
-        }
-        /*CONF TESSERACT*/
-        if (!empty($factory->build["tesseract_read"])) {
-            $identify->build["identify"]["origin"] = "TESSERACT";
-            $identify->build["identify"]["cnpj"] = "";
-            $identify->build["identify"]["nfe"] = "";
-            return $identify->build;
-        }
+        $patterns = new Scanner_patterns();
+        $patterns->build = $this->build;
+        return $patterns->update_build_path();
     }
-    /*------------------------------------------>LEITOR ZBAR<------------------------------------------*/
-    public function images_barcode_reader($try = 0)
+    /*SAVE TESSERACT*/
+    public function save_tesseract_loop()
     {
-        $factory = new Scanner_image_factory();
-        $factory->build = $this->build;
-        $factory->image = $this->image;
-        /*SCANNER FACTORY*/
-        $get_factory = new Scanner_factory();
-        $get_factory->build = $factory->build;
-        $get_factory->image = $factory->image;
-        /*CROP DATA AND CREATE SAMPLE*/
-        $get_factory->build["crop_index"] = 3;
-        $dimensions = $get_factory->factory_crop_dimensions();
-        $get_factory->build["crop"] = $dimensions;
-        $get_factory->factory_identify_sample_init(true);
-        /*READ BARCODE*/
-        $barCode = $get_factory->factory_read_barcode();
-        if ($barCode["code"] == 200) {
-            if ($barCode["text"] == "") return;
-            if ($barCode["text"] != "") return $barCode["text"];
+        $builds = $this->compound_build();
+        $this->build = $builds;
+        $this->where = "process";
+        $this->set_from_to();
+        /*COMPLETAR BUILD*/
+        $this->build["scanner"] = $this->image["scanner"];
+        $this->build["user"] = $this->image["username"];
+        $updateBuild = $this->save_tesseract_complemento_patterns();
+        $this->build = $updateBuild;
+        /*IDENTIFY*/
+        $this->identify->origin = "TESSERACT";
+        $this->identify->nfe = $this->image["nfe"];
+        $this->identify->cnpj = $this->image["cnpj"];
+        $this->identify->raw = $this->image["cnpj"] . $this->image["nfe"];
+        /*READER*/
+        $this->reader->origin = "TESSERACT";
+        $this->reader->nfe = $this->image["nfe"];
+        $this->reader->cnpj = $this->image["cnpj"];
+        $this->reader->raw = $this->image["cnpj"] . $this->image["nfe"];
+        /*CERTIFICAR*/
+        $this->get_certificado_data();
+        $this->image = $this->image["image"];
+        $this->file_jpeg();
+        $this->certificar_canhoto();
+        //$this->visualizar();
+        return;
+    }
+    //public function visualizar(){ echo json_encode($this); echo "\n"; return; }
+    /*PREPARE READER TESSERACT*/
+    public function prepare_reader_tesseract()
+    {
+        $builds = $this->compound_build();
+        $this->build = $builds;
+        $this->set_from_to();
+        $this->get_image_path();
+        $this->file_jpeg();
+        $this->image_samples_sizes();
+        $this->build["crop_index"] = "2";
+        $this->create_crop_dimensions();
+        $this->build_image_sample();
+        $read = $this->read_tessa();
+        $this->set_tesseract_reader($read);
+        $this->tesseract_identify_empresa();
+        $this->tessercat_indetify_nfe();
+        return $this->identify;
+    }
+    /*SET TESSERACT READER*/
+    public function set_tesseract_reader($nArray)
+    {
+        /*SET RETORNO TESSERACT*/
+        (!isset($this->reader->tesseract_reader)) ? $this->reader->tesseract_reader = array() : "";
+        $this->reader->tesseract_reader[] = $nArray["data"];
+        /*SET TESSERACT ARRAY*/
+        (!isset($this->reader->exploder)) ? $this->reader->exploder = array() : "";
+        $this->reader->exploder = $this->tesseract_exploder($nArray);
+        return;
+    }
+    /*TESSERACT EXPLODER*/
+    public function tesseract_exploder($nArray)
+    {
+        $xplode = explode(" ", $nArray["data"]);
+        $tess_xploder = array();
+        for ($i = 0; $i < count($xplode); $i++) ($xplode[$i] == " ") ? "" : $tess_xploder[] = $xplode[$i];
+        return $tess_xploder;
+    }
+    /*TESSERACT TRY IDENTIFY EMPRESA*/
+    public function tesseract_identify_empresa($try = 0)
+    {
+        $this->identify->origin = "TESSERACT";
+        if (array_intersect(SALES_PRIMARY_KNOW_NAMES, $this->reader->exploder)) {
+            $this->identify->cnpj = $this->find_tesseract_company_sales();
+        } else if (array_intersect(SANDALO_PRIMARY_KNOW_NAMES, $this->reader->exploder)) {
+            $this->identify->cnpj = $this->find_tesseract_company_sandalo();
+        } else if (array_intersect(DONA_PRIMARY_KNOW_NAMES, $this->reader->exploder)) {
+            $this->identify->cnpj = DONA_DESCARTAVEIS["CNPJ"];
         } else {
+            /*VARIAVEIS*/
+            $index = 0.100;
+            /*GAMA TRY*/
+            if ($try < 10) $this->tesseract_gama($index);
+            /*ENHANCE TRY*/
+            if ($try > 10 && $try < 20) $this->tesseract_gama_enhance($index);
+
             $try++;
-            $builds = $factory->images_factory_orientations();
-            $factory->build = $builds;
-            if ($try == 3) return;
-            if ($try <= 3) return $factory->images_barcode_reader($try);
+            $this->build_image_sample();
+            $read = $this->read_tessa();
+            $this->set_tesseract_reader($read);
+
+            /*RETURN*/
+            if ($try < 21) return $this->tesseract_identify_empresa($try);
+            $this->identify->cnpj = 0;
+            return;
         }
+        return;
     }
-    /*------------------------------------------->LEITOR TESSERACT<-------------------------------------*/
-    public function images_factory_tesseract_init()
+    public function tesseract_gama($index, $type = "add")
     {
-        /*SCANNER IMAGE*/
-        $factory = new Scanner_image_factory();
-        $factory->image = $this->image;
-        $factory->build = $this->build;
-        $factory->build["crop_index"] = 5;
-        /*SCANNER FACTORY*/
-        $get_factory = new Scanner_factory();
-        $get_factory->build = $factory->build;
-        $get_factory->image = $factory->image;
-        /*CHANGE CROP PATTERNS*/
-        $crops = $get_factory->factory_crop_dimensions();
-        $get_factory->build["crop"] = $crops;
-        $factory->build = $get_factory->build;
-        /*CREATE NEW SAMPLE*/
-        $get_factory->factory_identify_sample_init(true);
-        /*READ TESSERACT*/
-        $tessa = $get_factory->factory_read_tesseract();
-        if (intval($tessa["status"]) == 0) {
-            /*FLIP 90º ROTATE*/
-            $get_factory->factory_rotate(90, "path_process", "path_process");
-            $get_factory->factory_rotate(90, "path_process", "path_process", "local");
-            /*NEW SIZES*/
-            $sizes = $get_factory->factory_getSizes();
-            $factory->build["sizes"] = $sizes;
-            /*ORIENTATIONS*/
-            $builds = $factory->images_factory_orientations();
-            $factory->build = $builds;
-            return $factory->images_factory_tesseract_init();
-        }
-        $factory->build["tesseract_read"] = $tessa["data"];
-        return $factory->build;
+        if ($type == "add") return $this->build["gamma_index"] = floatval($this->build["gamma_index"]) + floatval($index);
+        if ($type == "remove") return $this->build["gamma_index"] = floatval($this->build["gamma_index"]) - floatval($index);
     }
-    /*IDENT STEPS*/
-    public function images_factory_tesseract_steps($try = 0)
+    public function tesseract_gama_enhance($index)
     {
-        $factory = new Scanner_image_factory();
-        $factory->build = $this->build;
-        $factory->image = $this->image;
-        /*SCANNER FACTORY*/
-        $get_factory = new Scanner_factory();
-        $get_factory->build = $factory->build;
-        $get_factory->image = $factory->image;
-        /*GET TESSERACT READS*/
-        if (empty($this->build["tesseract_read"])) $tess_read = array();
-        if (is_null($this->build["tesseract_read"])) $tess_read = array();
-        if (!empty($this->build["tesseract_read"])) $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
-        /*INTERSECT TESSERACT*/
-        if (count(array_intersect(SALES_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
-            $builds = $factory->images_factory_identify_init();
-            $factory->build = $builds;
-            /*GET CNPJ DA EMPRESA*/
-            $cnpj = $factory->images_factory_empresa_cnpj();
-            $factory->build["identify"]["cnpj"] = $cnpj;
-            $nfe = $factory->images_factory_empresa_nfe();
-            $factory->build["identify"]["nfe"] = $nfe;
-            return $factory->build;
-        } else if (count(array_intersect(SANDALO_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
-            $builds = $factory->images_factory_identify_init();
-            $factory->build = $builds;
-            /*GET CNPJ DA EMPRESA*/
-            $cnpj = $factory->images_factory_empresa_cnpj();
-            $factory->build["identify"]["cnpj"] = $cnpj;
-            $nfe = $factory->images_factory_empresa_nfe();
-            $factory->build["identify"]["nfe"] = $nfe;
-            return $factory->build;
-        } else if (count(array_intersect(DONA_PRIMARY_KNOW_NAMES, $tess_read)) > 0) {
-            $builds = $factory->images_factory_identify_init();
-            $factory->build = $builds;
-            /*GET CNPJ DA EMPRESA*/
-            $factory->build["identify"]["cnpj"] = DONA_DESCARTAVEIS["CNPJ"];
-            $nfe = $factory->images_factory_empresa_nfe();
-            $factory->build["identify"]["nfe"] = $nfe;
-            return $factory->build;
-        } else {
-            $try++;
-            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
-            $get_factory->build["specials"]["active"] = true;
-            $get_factory->build["specials"]["sharpen"] = true;
-            $get_factory->build["specials"]["sharpen_data"][0] = 1;
-            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .030;
-            /*RECREATE SAMPLE AND READ*/
-            $get_factory->factory_identify_sample_init(true);
-            $reads_raws = $get_factory->factory_read_tesseract();
-            /*UPDATE TESSERACT READS*/
-            $get_factory->build["tesseract_read"] = $reads_raws["data"];
-            /*UPDATE BUILD*/
-            $factory->build = $get_factory->build;
-            /*FINALIZA*/
-            if ($try < 10) return $factory->images_factory_tesseract_steps($try);
-            if ($try >= 10) return $factory->build;
-        }
+        $this->build["specials"]["active"] = true;
+        $this->build["specials"]["enhance"] = true;
+        $this->tesseract_gama($index, "remove");
+        return;
     }
-    /*GET CNPJ*/
-    public function images_factory_empresa_cnpj($try = 0)
+    /*TESSERACT FIND COMPANY*/
+    public function find_tesseract_company_sales()
     {
-        $factory = new Scanner_image_factory();
-        $factory->image = $this->image;
-        $factory->build = $this->build;
-        if ($try == 0) $factory->build["gamma_index"] = 0.200;
-        /*SCANNER FACTORY*/
-        $get_factory = new Scanner_factory();
-        $get_factory->build = $factory->build;
-        $get_factory->image = $factory->image;
-        /*IDENTIFICAR EMPRESA*/
-        if (empty($this->build["tesseract_read"])) $tess_read = array();
-        if (is_null($this->build["tesseract_read"])) $tess_read = array();
-        if (!empty($this->build["tesseract_read"])) $tess_read = $get_factory->factory_xplode($this->build["tesseract_read"]);
-        if (count(array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $tess_read)) > 0) {
+        if (array_intersect(SALES_EQUIP["SECONDARY_KNOW_NAMES"], $this->reader->exploder)) {
             return SALES_EQUIP["CNPJ"];
+        } else if (array_intersect(SALES_IND["SECONDARY_KNOW_NAMES"], $this->reader->exploder)) {
+            return SALES_IND["CNPJ"];
         } else {
-            $try++;
-            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
-            $get_factory->build["specials"]["active"] = true;
-            $get_factory->build["specials"]["sharpen"] = true;
-            $get_factory->build["specials"]["sharpen_data"][0] = 1;
-            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .030;
-            /*RECREATE SAMPLE AND READ*/
-            $get_factory->factory_identify_sample_init(true);
-            $reads_raws = $get_factory->factory_read_tesseract();
-            /*UPDATE TESSERACT READS*/
-            $get_factory->build["tesseract_read"] = $reads_raws["data"];
-            /*UPDATE BUILD*/
-            $factory->build = $get_factory->build;
-            /*FINALIZA*/
-            if ($try < 10) return $factory->images_factory_empresa_cnpj($try);
-            if ($try >= 10) return "";
+            return;
         }
     }
-    /*GET NFE*/
-    public function images_factory_empresa_nfe($try = 0)
+    /*TESSERACT FIND COMPANY*/
+    public function find_tesseract_company_sandalo()
     {
-        $factory = new Scanner_image_factory();
-        $factory->build = $this->build;
+        if (array_intersect(SANDALO_EQUIP["SECONDARY_KNOW_NAMES"], $this->reader->exploder)) {
+            return SANDALO_EQUIP["CNPJ"];
+        } else if (array_intersect(COMERCIAL_SANDALO["SECONDARY_KNOW_NAMES"], $this->reader->exploder)) {
+            return COMERCIAL_SANDALO["CNPJ"];
+        } else {
+            return;
+        }
+    }
+    /*TESSERCT IDENTIFY NFE*/
+    public function tessercat_indetify_nfe($try = 0)
+    {
+        $this->build["crop_index"] = 3;
+        $this->create_crop_dimensions();
+        $this->build_image_sample();
+        $read = $this->read_tessa();
+        $read["data"] = mb_strtolower($read["data"], "UTF-8");
+        $read["data"] = str_replace(ONLY_NUMBERS, "", $read["data"]);
+        $read["data"] = str_replace(REMOVE_SPECIALS, "", $read["data"]);
+        $this->set_tesseract_reader($read);
+        if (strlen($read["data"]) < 5) {
+            /*VARIAVEIS*/
+            $index = 0.100;
+            $try++;
+            if ($try < 5) {
+                $this->tesseract_gama($index);
+                return $this->tessercat_indetify_nfe($try);
+            } else {
+                $this->identify->nfe = $read["data"];
+            }
+        }
+        $this->identify->nfe = $read["data"];
+        return;
+    }
+    /*READ TESSERACT*/
+    public function read_tessa()
+    {
+        $tesseract = new Scanner_tesseract();
+        $tesseract->build = $this->build;
+        $tesseract->entry = $this->image;
+        return $tesseract->tesseract_ocr();
+    }
+    /*READ ZBAR*/
+    public function read_zbar()
+    {
+        $factory = new Scanner_factory();
         $factory->image = $this->image;
-        if ($try == 0) $factory->build["gamma_index"] = 0.200;
-        /*SCANNER FACTORY*/
-        $get_factory = new Scanner_factory();
-        $get_factory->build = $factory->build;
-        $get_factory->image = $factory->image;
-        /*CREATE CROP & SAMPLE*/
-        $get_factory->build["crop_index"] = 4;
-        $crop = $get_factory->factory_crop_dimensions();
-        $get_factory->build["crop"] = $crop;
-        /*CREATE SAMPLE & READ*/
-        $get_factory->factory_identify_sample_init(true);
-        $reads_nfe = $get_factory->factory_read_tesseract();
-        $reads_nfe = str_split(mb_strtolower($reads_nfe["data"], "UTF-8"));
-        $reads_nfe = implode("", str_replace(ONLY_NUMBERS, "", $reads_nfe));
-        if (strlen($reads_nfe) > 4) {
-            return $reads_nfe;
-        } else {
-            $try++;
-            $get_factory->build["gamma_index"] = floatval($get_factory->build["gamma_index"]) + .125;
-            $get_factory->build["specials"]["active"] = true;
-            $get_factory->build["specials"]["sharpen"] = true;
-            $get_factory->build["specials"]["sharpen_data"][0] = 1;
-            $get_factory->build["specials"]["sharpen_data"][1] = floatval($get_factory->build["specials"]["sharpen_data"][1]) + .030;
-            /*RECREATE SAMPLE AND READ*/
-            $get_factory->factory_identify_sample_init(true);
-            $reads_raws = $get_factory->factory_read_tesseract();
-            /*UPDATE TESSERACT READS*/
-            $get_factory->build["tesseract_read"] = $reads_raws["data"];
-            /*UPDATE BUILD*/
-            $factory->build = $get_factory->build;
-            /*FINALIZA*/
-            if ($try < 10) return $factory->images_factory_empresa_nfe($try);
-            if ($try >= 10) return "";
-        }
+        $factory->build = $this->build;
+        $factory->build["where"] = $this->where;
+        return $factory->zbar_reader();
     }
-    /*--------------------------------------------->IDENTIFICAÇÃO DO CANHOTO<---------------------------------------------*/
-    /*SET IDENTIFY PARA BARCODE*/
-    public function images_factory_identify($barCode)
+    /*PEGAR DADOS DO CERTIFICADO*/
+    public function get_certificado_data()
     {
-        $identify = new Scanner_image_factory();
-        $identify->image = $this->image;
-        $identify->build = $this->build;
-        $identify->build["identify"]["cnpj"] = substr($barCode, 0, 14);
-        $identify->build["identify"]["nfe"] = substr($barCode, 14, strlen($barCode));
-        return $identify->build;
+        $certificado_path = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]) . "/cert";
+        $certificado_file = $this->identify->cnpj . ".pfx";
+        if (file_exists($certificado_path . "/" . $certificado_file)) {
+            $certificado = file_get_contents($certificado_path . "/" . $certificado_file);
+            openssl_pkcs12_read($certificado, $cert, base64_decode(CERTIFICADOS));
+            $sign_cert = $cert["cert"];
+            $sign_pkey = $cert["pkey"];
+            $certificado_file_crt = str_replace(".pfx", ".crt", $certificado_file);
+            (!file_exists($certificado_path . "/" . $certificado_file_crt)) ? file_put_contents($certificado_path . "/" . $certificado_file_crt, "") : "";
+            file_put_contents($certificado_path . "/" . $certificado_file_crt, $sign_cert . $sign_pkey);
+            $CertPriv = openssl_x509_parse(openssl_x509_read($sign_cert));
+            $this->build["crt"] = $CertPriv;
+            return;
+        }
+        return;
     }
-    /*------------------------------------------------>CERTIFICAR<-------------------------------------------------------*/
-    public function images_factory_certify()
+    /*CERTIFICAR CANHOTO*/
+    public function certificar_canhoto()
     {
-        /*CURRENT CLASS*/
-        $identify = new Scanner_image_factory();
-        $identify->build = $this->build;
-        $identify->image = $this->image;
-        /*LER COD BARRAS*/
-        $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        /*OPEN CERTIFICADOS*/
-        $certificado_path = $this->build["path_local"] . "cnt-files/cnt-assets/cert/" . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".pfx";
-        $certificado_file = file_get_contents($certificado_path);
-        openssl_pkcs12_read($certificado_file, $certificado, base64_decode(CERTIFICADOS));
-        $cert = $certificado["cert"];
-        $pkey = $certificado["pkey"];
-        /*CRIAR .CER*/
-        $path_cert = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]) . "cert/";
-        file_put_contents(
-            $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt",
-            $certificado['pkey'] . $certificado['cert']
-        );
-        /*ADD .CRT TO BUILD*/
-        $get_factory->build["crt"]["path"] = $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt";
-        $CertPriv = openssl_x509_parse(openssl_x509_read($cert));
-        $get_factory->build["crt"]["text"] = $CertPriv;
-        /*TO ZBAR*/
-        if ($this->build["identify"]["origin"] == "ZBAR") {
-            $get_factory->factory_turn_image_to_pdf();
-            $get_factory->factory_erase_link();
-            return $get_factory->build;
-        }
-        /*TO TESSERACT*/
-        if ($this->build["identify"]["origin"] == "TESSERACT") {
-            $identify->build = $get_factory->build;
-            return $identify->build;
-        }
-        /*TO SAVE TESSERACT*/
-        if ($this->build["identify"]["origin"] == "SAVE-TESSERACT") {
-            $get_factory->factory_turn_image_to_pdf();
-            $get_factory->factory_erase_link();
-        }
+        $this->create_pdf_file();
+        $this->remove_files();
+        ($this->identify->origin == "TESSERACT") ? $this->wip_directories() : "";
+        return;
     }
-    public function images_factory_certify_save()
+    /*REMOVE FILES*/
+    public function remove_files()
     {
-        /*CURRENT CLASS*/
-        $identify = new Scanner_image_factory();
-        $identify->image = $this->image;
-        $identify->build = $this->build;
-        //$identify->build["path_local"] = "../../../../../";
-        /*LER COD BARRAS*/
-        $get_factory = new Scanner_factory();
-        $get_factory->image = $identify->image;
-        $get_factory->build = $identify->build;
-        /*OPEN CERTIFICADOS*/
-        $certificado_path = $this->build["path_local"] . "cnt-files/cnt-assets/cert/" . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".pfx";
-        $certificado_file = file_get_contents($certificado_path);
-        openssl_pkcs12_read($certificado_file, $certificado, base64_decode(CERTIFICADOS));
-        $cert = $certificado["cert"];
-        $pkey = $certificado["pkey"];
-        /*CRIAR .CER*/
-        $path_cert = $this->build["path_local"] . str_replace("./", "", $this->build["path_exec"]) . "cert/";
-        file_put_contents(
-            $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt",
-            $certificado['pkey'] . $certificado['cert']
-        );
-        /*ADD .CRT TO BUILD*/
-        $get_factory->build["crt"]["path"] = $path_cert . str_replace("\"", "", $this->build["identify"]["cnpj"]) . ".crt";
-        $CertPriv = openssl_x509_parse(openssl_x509_read($cert));
-        $get_factory->build["crt"]["text"] = $CertPriv;
-        /*TO ZBAR*/
-        if ($this->build["identify"]["origin"] == "ZBAR") {
-            $get_factory->factory_turn_image_to_pdf();
-            $get_factory->factory_erase_link();
-            return $get_factory->build;
-        }
-        /*TO TESSERACT*/
-        if ($this->build["identify"]["origin"] == "TESSERACT") {
-            $identify->build = $get_factory->build;
-            return $identify->build;
-        }
-        /*TO SAVE TESSERACT*/
-        if ($this->build["identify"]["origin"] == "SAVE-TESSERACT") {
-            $get_factory->factory_turn_image_to_pdf();
-            $get_factory->factory_erase_link();
-            return json_encode($get_factory->build);
-        }
+        $removes = new Scanner_factory();
+        $removes->image = $this->image;
+        $removes->build = $this->build;
+        $removes->reader = $this->reader;
+        $removes->entry = $this->identify;
+        $removes->prepare_remove_files();
+        return;
     }
-    /*SALVAR TESSERACT*/
-    public function images_factory_tesseract_save()
+    /*WIPE DIRECTORIES*/
+    public function wip_directories()
     {
-        $oculta = $this->image["save"];
-        /*SAVE FACTORY*/
-        $saveFactory = new Scanner_image_factory();
-        $saveFactory->build = $this->build;
-        $saveFactory->build["identify"] = array();
-        $saveFactory->build["identify"]["origin"] = "SAVE-TESSERACT";
-        /*SAVE IMAGES*/
-        for ($i = 0; $i < count($oculta); $i++) {
-            $identy = $oculta[$i];
-            $saveFactory->image = $identy["image"];
-            $saveFactory->build["identify"]["cnpj"] = $identy["cnpj"];
-            $saveFactory->build["identify"]["nfe"] = $identy["nfe"];
-            $saveFactory->build["scannerID"] = $identy["scanner"];
-            $saveFactory->build["who"] = $identy["username"];
-            $saveFactory->images_factory_certify_save();
-        }
+        $removes = new Scanner_factory();
+        $removes->image = $this->image;
+        $removes->build = $this->build;
+        $removes->reader = $this->reader;
+        $removes->entry = $this->identify;
+        $removes->prepare_wip_directories();
+        return;
+    }
+    /*CREATE PDF*/
+    public function create_pdf_file()
+    {
+        $pdf = new Scanner_factory();
+        $pdf->image = $this->image;
+        $pdf->build = $this->build;
+        $pdf->reader = $this->reader;
+        $pdf->entry = $this->identify;
+        $pdf->create_pdf();
+        return;
+    }
+    /*BUILD FORMATO PARA IDENTIFY*/
+    public function identify_format($origin)
+    {
+        $this->identify->origin = $origin;
+        ($origin == "ZBAR") ? $this->identify->raw = $this->reader->zbar->text : "";
+        ($origin == "ZBAR") ? $this->identify->cnpj = substr($this->reader->zbar->text, 0, 14) : "";
+        ($origin == "ZBAR") ? $this->identify->nfe = substr($this->reader->zbar->text, 14, strlen($this->reader->zbar->text)) : "";
         return;
     }
 }

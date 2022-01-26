@@ -20,5 +20,5 @@ $scanner = new Scanner_compound();
 $scanner->swit = "limpar-pasta-local";
 $scanner->build["scannerID"] = $data->scanner;
 $scanner->build["who"] = $data->user;
-$images_scanner = $scanner->compound_scanner();
-echo json_encode($images_scanner);
+//$images_scanner = $scanner->compound_scanner();
+//echo json_encode($images_scanner);

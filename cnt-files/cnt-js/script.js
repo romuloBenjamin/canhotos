@@ -42,14 +42,17 @@ const getTime = () => {
         useGrouping: false
     });
     const time = hours + "h" + minutes;
-    console.log(time);
     return time;
 }
 
 // Get the json which contains the identify processes running at the moment
 async function getIdentifyProcessesRunningJson(path = "./cnt-files/cnt-modules/scanner-module/jsons/lista-identify-processes-running-json.json") {
     try {
-        const response = await axios.get(path);
+        const response = await axios.get(path, { headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+        }});
         return response.data;
     } catch(error) {
         console.log(error);
@@ -60,28 +63,8 @@ async function getIdentifyProcessesRunningJson(path = "./cnt-files/cnt-modules/s
 // Update the json with the identify process currently running
 async function updateIdentifyProcessesRunningJson(userInfo, path = "./cnt-files/cnt-modules/scanner-module/core/lista-identify-processes-running-core.php") {
     try {
-        const headers = {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        }
-
-        const response = await axios.post(path, userInfo, {
-            headers: headers
-        });
+        const response = await axios.post(path, userInfo);
     } catch(error) {
         console.log(error);
     }
-}
-
-async function erase_files(scannerId, username, path = "./cnt-files/cnt-modules/scanner-module/core/erase-directories-files-core.php") {
-    var config = {scanner: scannerId, user: username};
-    //var config = {
-        //scanner: "scanner-1",
-        //user: "romulo.franco"
-    //};
-    console.log(config);
-    console.log(path);
-    var x = await axios.post(path, {config})
-    console.log(x.data);
 }

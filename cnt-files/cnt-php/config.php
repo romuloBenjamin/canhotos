@@ -42,7 +42,7 @@ define(
 );
 define(
     "REMOVE_SPECIALS",
-    array("—", ".", "+", "-", "/", "*", "=", "[", "]", "{", "}", "|", "?", "~", "^", "´", "`", ">", "<", ":", ";", ",", "\\", "!", "#", "%", "¨", "&", "(", ")", "_", "\n", "”", "|")
+    array("—", ".", "+", "-", "/", "*", "=", "[", "]", "{", "}", "|", "?", "~", "^", "´", "`", ">", "<", ":", ";", ",", "\\", "!", "#", "%", "¨", "&", "(", ")", "_", "\n", "”", "|", "\"")
 );
 define(
     "REMOVE_ACENTOS",
@@ -60,7 +60,7 @@ define(
 /*SALES*/
 define(
     "SALES_PRIMARY_KNOW_NAMES",
-    array("SALES", "SATLES", "BALES", "SATES", "SALÉES", "SALEES")
+    array("SALES", "SATLES", "BALES", "SATES", "SALÉES", "SALEES", "SATHES", "FALES", "SATAIS")
 );
 define(
     "SALES_EQUIP",

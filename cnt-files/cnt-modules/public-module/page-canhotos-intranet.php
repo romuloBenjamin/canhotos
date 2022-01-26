@@ -4,31 +4,25 @@
     </div>
     <hr>
     <!-- CONTAINER SCANNER & CERTIFICADOS -->
-    <div class="d-flex justify-content-between container-scanner">
-        <div class="d-flex justify-content-center align-items-center w-25">
-            <!-- THIS WILL LIST ALL CRYPTS THAT WILL EXPIRE IN 30D -->
-            <div id="alert-certificados" class="d-none alert-certificados">
-                <h2>Certificados Disponíveis</h2>
-                <ul class="list-group">
-                    <li id="cloneNode" class="list-group-item"></li>
-                </ul>
-            </div>
+    <div class="d-flex align-items-start justify-content-center container-scanner">
+        <!-- THIS WILL LIST ALL CRYPTS THAT WILL EXPIRE IN 30D -->
+        <div id="alert-certificados" class="d-flex flex-column alert-certificados justify-content-center align-items-center">
+            <h2>Certificados</h2>
+            <ul class="list-group">
+                <li id="cloneNode" class="list-group-item"></li>
+            </ul>
         </div>
-        <div id="escaneamento" class="d-flex escaneamento">
-            <div class="d-flex flex-column canhotos-content">
-                <span>Ações disponíveis no Scanner</span>
-                <hr>
-                <div class="d-flex flex-columns container-scanner-botoes">
-                    <div class="d-flex align-self-start" id="buttonContainer"></div>
-                    <div class="d-flex flex-column justify-content-center align-items-center extra-container"></div>
-                    <!-- MESSAGE BOX -> WHERE MESSAGE WILL DISPLAY -->
-                    <div class="d-none flex-column justify-content-center message-box-container">
-                        <div class="d-flex justify-content-center align-items-center">
-                            <div id="spinner" class="d-none spinner-border" role="status"></div>
-                            <div class="message-box" id="messageBox"></div>
-                        </div>
-                        <div class="d-flex justify-content-center text-center extra-message-box" id="extraMessageBox"></div>
-                    </div>
+        <div class="d-flex flex-column canhotos-content">
+            <div class="d-flex align-items-center available-actions">
+                <span>Ações disponíveis</span>
+                <div id="spinner" class="d-none spinner-border" role="status"></div>
+            </div>
+
+            <hr>
+            <div class="d-flex main-container">
+                <div class="d-flex align-items-start align-self-start" id="buttonContainer"></div>
+                <div class="d-none flex-column justify-content-center align-self-start extra-container">
+                    <div class="message-box" id="messageBox"></div>
                 </div>
             </div>
         </div>

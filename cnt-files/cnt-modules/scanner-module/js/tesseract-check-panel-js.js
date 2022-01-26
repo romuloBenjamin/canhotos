@@ -11,19 +11,20 @@ const showTesseractItems = () => {
     let index = 0;
     const originalNode = document.querySelector("#cloneNode");
     for(let item of data) {
+        console.log(item)
         const clone = originalNode.cloneNode(true);
-        const image_path_process = "../../../../images/scanner/" + item.scannerID + "/" + item.who + "/" + item.path_process.replace("./scanner/", "");
-        const image_path_results = "../../../../images/scanner/" + item.scannerID + "/" + item.who + "/" + item.path_results.replace("./scanner/", "");
+        const image_path_process = "../../../../images/scanner/" + item.scannerId + "/" + item.username + "/process";
+        const image_path_results = "../../../../images/scanner/" + item.scannerId + "/" + item.username + "/results";
         clone.id = "item-" + index;
         // PLACE CNPJ E NFE SE LOCALIZAR
         const cnpj = clone.querySelector("#cnpj");
-        let cnpjValue = item.identify.cnpj ? item.identify.cnpj : "";
+        let cnpjValue = item.cnpj ? item.cnpj : "";
         if(cnpjValue.length > 14) cnpjValue = cnpjValue.substring(0, 14);
         cnpj.value = cnpjValue;
         cnpj.id = cnpj.id + "-" + index;
         cnpj.name = cnpj.id;
         const nfe = clone.querySelector("#nfe");
-        let nfeValue = item.identify.nfe?.replace(/\D/g,'') || "";
+        let nfeValue = item.nfe?.replace(/\D/g,'') || "";
         if(nfeValue.length > 9) nfeValue = nfeValue.substring(0, 9);
         nfe.value = nfeValue;
         nfe.id = nfe.id + "-" + index;
@@ -32,9 +33,9 @@ const showTesseractItems = () => {
         hidden.id = hidden.id + "-" + index;
         hidden.name = hidden.id;
         const hiddenData = {
-            scanner: item.scannerID,
-            image: item.images,
-            user: item.who
+            scanner: item.scannerId,
+            image: item.image,
+            user: item.username
         };
         hidden.value = JSON.stringify(hiddenData);
         // PLACE IMAGES
@@ -42,10 +43,10 @@ const showTesseractItems = () => {
         imagesArea.querySelector("#cloneImage").id = "sample-canhotos-" + index;
         imagesArea.querySelector("#cloneImage2").id = "sample-nfe-" + index;
         // PLACE IMAGES
-        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("src", image_path_process + "/" + item.images);
-        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("alt", item.images);
-        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("src", image_path_results + "/" + item.images);
-        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("alt", item.images);
+        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("src", image_path_process + "/" + item.image);
+        imagesArea.querySelector("#sample-canhotos-" + index + "").setAttribute("alt", item.image);
+        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("src", image_path_results + "/" + item.image);
+        imagesArea.querySelector("#sample-nfe-" + index + "").setAttribute("alt", item.image);
         itemPlacer.appendChild(clone);
         index++;
     }
@@ -84,6 +85,12 @@ async function ver_canhoto(e) {
     const popup = window.open(e.src, "_blank");
 }
 
+function rotate(e) {
+    const image = e.parentElement.querySelector(".canhoto_view");
+    if(image.classList.contains("rotated")) image.classList.remove("rotated");
+    else image.classList.add("rotated");
+}
+
 /*SALVAR TESSA*/
 async function salvarTessa(e) {
     let username;
@@ -100,7 +107,7 @@ async function salvarTessa(e) {
             const hiddenData = JSON.parse(tesseractForm.elements["oculta-" + i].value);
             const nfeValue = tesseractForm.elements["nfe-" + i].value.toString();
             const cnpjValue =  tesseractForm.elements["cnpj-" + i].value.toString();
-            if(!nfeValue || !cnpjValue) throw new Error("Por favor, preencha todos os dados");
+            if(!nfeValue || !cnpjValue || nfeValue.length < 9 || cnpjValue.length < 14) throw new Error("Por favor, preencha todos os dados corretamente.");
             data[i] = {
                 nfe: nfeValue,
                 cnpj: cnpjValue,
@@ -113,6 +120,7 @@ async function salvarTessa(e) {
             if(!username) username = hiddenData.user;
             if(!scannerId) scannerId = hiddenData.scanner;
             // Add the data to log
+            console.log(data[i])
             const addToLog = await axios.post("../../core/add-to-log-file-core.php", data[i]);
             i++;
         }
@@ -129,7 +137,6 @@ async function salvarTessa(e) {
         await updateIdentifyProcessesRunningJson({
             [username]: userInfo
         }, "../../core/lista-identify-processes-running-core.php");
-        await erase_files(scannerId, username, "../../core/erase-directories-files-core.php");
         window.close();
     } catch(error) {
         if(error.message === "Por favor, preencha todos os dados") alert(error.message);

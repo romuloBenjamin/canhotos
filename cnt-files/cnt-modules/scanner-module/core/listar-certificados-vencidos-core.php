@@ -15,9 +15,7 @@ require "../../../../vendor/autoload.php";
 
 $loudConns->file = "loudMods";
 $loudConns->loudModules();
+/*LISTAR CERTIFICADOS VENCIDOS*/
 $factory = new Scanner_compound();
-$factory->swit = "verificar-certificados-expirados";
 $factory->entry = array("10290557000168.pfx", "21823607000141.pfx", "30379727000192.pfx", "35765246000139.pfx");
-$vencidos = $factory->compound_scanner();
-/*RESULT CERTIFICADOS VENCIDOS*/
-echo $factory->compound_scanner();
+echo $factory->listar_certificados_vencidos();

@@ -1,7 +1,7 @@
 /*GET EXPIREDDIGITALSIGNS*/
 async function getExpiredDigitalSigns() {
     var certificados = await axios.get("./cnt-files/cnt-modules/scanner-module/core/listar-certificados-vencidos-core.php");    
-    //console.log(certificados.data);
+    console.log(certificados.data);
     var placer_certificados = document.querySelector("div#alert-certificados");
     const certificadosExpirados = [];
     if(certificados.data.length > 1){
