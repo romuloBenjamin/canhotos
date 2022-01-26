@@ -27,6 +27,9 @@ class Scanner_compound
     public function listar_certificados_vencidos()
     {
         $certificados = $this->listar_certificados();
+        /*SENDMAIL*/
+        $this->entry = $certificados;
+        $this->send_mails();
         return json_encode($certificados);
     }
 
@@ -38,6 +41,20 @@ class Scanner_compound
         $factory->build = $this->build;
         $certificados = $factory->factory_expired_digitals_signs();
         return $certificados;
+    }
+    /*SENDMAIL*/
+    public function send_mails()
+    {
+        $mails = new Mailer_module();
+        $mails->build = $this->build;
+        for ($i = 0; $i < count($this->entry); $i++) {
+            $data = $this->entry[$i];
+            if ($data->dias_p_expirar == 0) {
+                $mails->entry = $data;
+                $mails->mailer_compound();
+            }
+        }
+        return;
     }
 
     /*COMPOUND AMBIENT DE PROCESSAMENTO*/

@@ -26,7 +26,7 @@ class Mailer_module
         $mailer->mail = $mailer->send_to_replay();
         $mailer->mail = $mailer->body_message();
         $mailer->mail = $mailer->to_send();
-        return $mailer->mail;
+        return;
     }
     /*SMTP DATA*/
     public function get_smtp()
@@ -62,7 +62,7 @@ class Mailer_module
     /*SEND MESSAGE*/
     public function body_message()
     {
-        $data = json_decode($this->entry);
+        $data = $this->entry;
         //Set the subject line
         $this->mail->Subject = 'Certificado Expirado em Canhotos';
         $this->mail->isHTML(true);
@@ -70,15 +70,14 @@ class Mailer_module
         $message = file_get_contents("../../mail-module/template/view/view-mail-expirados-template.php");
         $message = explode("[put-content]", $message);
         $this->mail->Body    = $message[0];
-        for ($i = 0; $i < count($data); $i++) {
-            if (intval($data[$i]->dias_p_expirar) < 12) {
-                $this->mail->Body    .= '<tr>';
-                $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data[$i]->cnpj . '</td>';
-                $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data[$i]->empresa . '</td>';
-                $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data[$i]->expire . '</td>';
-                $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data[$i]->timer . '</td>';
-                $this->mail->Body    .= '</tr>';
-            }
+        //for ($i = 0; $i < count($data); $i++) {}
+        if (intval($data->dias_p_expirar) < 12) {
+            $this->mail->Body    .= '<tr>';
+            $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data->cnpj . '</td>';
+            $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data->empresa . '</td>';
+            $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data->expire . '</td>';
+            $this->mail->Body    .= '<td style="font-size: .9rem;">' . $data->timer . '</td>';
+            $this->mail->Body    .= '</tr>';
         }
         $this->mail->Body    .= $message[1];
         $this->mail->AltBody = 'Verifique os certificados expirados na tela de Canhotos!';
@@ -88,8 +87,7 @@ class Mailer_module
     public function to_send()
     {
         $nArray = array();
-        $nArray = json_decode($this->entry, true);
         (!$this->mail->send()) ? $nArray["message"] = 'Mailer Error: ' . $this->mail->ErrorInfo : $nArray["message"] = 'Message sent!';
-        return $nArray;
+        return;
     }
 }

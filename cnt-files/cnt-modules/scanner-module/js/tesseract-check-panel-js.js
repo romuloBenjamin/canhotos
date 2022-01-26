@@ -82,7 +82,14 @@ function ver_sample(e) {
 
 /*VIEW CANHOTOS*/
 async function ver_canhoto(e) {
-    const popup = window.open(e.src, "_blank");
+    //const popup = window.open(e.src, "_blank");
+    const imageData = {
+        imageName: e.alt,
+        imageSource: e.src,
+        rotated: e.classList.contains("rotated")
+    }
+    window.localStorage.setItem("imageData", JSON.stringify(imageData));
+    const popup = window.open("view-canhoto-template.html", null, "width=1100 height=700");
 }
 
 function rotate(e) {

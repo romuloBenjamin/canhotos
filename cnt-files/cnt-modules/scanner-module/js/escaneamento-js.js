@@ -187,7 +187,7 @@ const scan = async (scanner) => {
 
 const openPopUp = () => {
     // Open the popup with the built data if there's any
-    const popup = window.open("./cnt-files/cnt-modules/scanner-module/template/view/view-alert-tesseract-template.html", "Confirmação de Canhotos", "width=1100 height=700");
+    const popup = window.open("./cnt-files/cnt-modules/scanner-module/template/view/view-alert-tesseract-template.html", "tesseract confirmation", "width=1100 height=700");
     popup.onunload = async () => {
         disableIdentifyButton();
     }
