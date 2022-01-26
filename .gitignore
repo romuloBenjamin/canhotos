@@ -1,0 +1,14 @@
+cnt-files/cnt-assets/*.exe
+cnt-files/cnt-assets/*.bat
+cnt-files/cnt-assets/libtesseract-5.dll
+cnt-files/cnt-assets/doc/*.md
+cnt-files/cnt-assets/dependencias/*.exe
+cnt-files/cnt-assets/cert/*.pfx
+cnt-files/cnt-assets/cert/*.txt
+cnt-files/cnt-assets/cert/*.crt
+cnt-files/cnt-assets/tessdata/*.zip
+cnt-files/cnt-assets/tessdata/tessdata-main/*
+cnt-files/cnt-assets/tessdata/osd.traineddata
+cnt-files/cnt-assets/tessdata/por.traineddata
+cnt-files/cnt-assets/tessdata/script/Latin.traineddata
+cnt-files/images/scanner/*
